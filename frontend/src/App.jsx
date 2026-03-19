@@ -1,35 +1,43 @@
 import './App.css';
-// import { useEffect } from "react";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3000");
+import { useEffect, useState } from "react";
+import { socket } from "./socket";
+import Home from "./components/Home";
+import Lobby from "./components/Lobby";
 
 function App() {
 
-  const makeLobby = () => {
-    socket.emit("create room");
-  }
+    const [lobbyId, setLobbyId] = useState(null);
 
-  const joinLobby = () => {
-    var lobbyCode = document.getElementById("lobbyID");
-    socket.emit("join room", lobbyCode);
-  }
+    useEffect(() => {
 
-  socket.on("lobbyUpdate", (lobby) => {
-    console.log("lobby updated");
-  });
+        socket.on("lobby:update", (_, roomId) => {
+            // opcionális, ha backend küldi
+        });
 
-  return (
-    <>
-      
-      <button onClick={makeLobby}>Lobby létrehozása</button>
+        // ha create után akarod visszakapni az ID-t:
+        socket.on("lobby:created", (id) => {
+            setLobbyId(id);
+        });
 
-      <input type="number" name="lobby_code" id="lobbyId" />
+        socket.on("lobby:joined", (id) => {
+            setLobbyId(id);
+        });
 
-      <button onClick={joinLobby}></button>
-      
-    </>
-  )
+        return () => {
+            socket.off("lobby:created");
+            socket.off("lobby:joined");
+        };
+
+    }, []);
+
+    return (
+        <div>
+            {!lobbyId
+                ? <Home setLobbyId={setLobbyId} />
+                : <Lobby lobbyId={lobbyId} />
+            }
+        </div>
+    );
 }
 
-export default App
+export default App;

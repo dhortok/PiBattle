@@ -77,7 +77,11 @@ class LobbyManager {
         let id;
 
         do {
-            id = Math.floor(1000 + (Math.random * 9000));
+            // Test id kiosztás
+            id = Math.floor(1000 + (Math.random() * 9000));
+
+            // Későbbi id kiosztás
+            // id = Math.random().toString(36).substring(2, 6).toUpperCase();
         } while (this.lobbies.has(id));
 
         return id;

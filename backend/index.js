@@ -29,13 +29,15 @@ io.on('connection', (socket) => {
 
     socket.on('lobby:create', () => {
         
-        const lobby = lobbyManager.createLobby();
+        const lobby = lobbyManager.createLobby(socket);
+
+        console.log(lobby);
 
         socket.join(lobby.id);
-
+        socket.emit("lobby:created", lobby.id);
         io.to(lobby.id).emit('lobby:update', {players: lobby.getPlayerList(), host: lobby.host});
 
-        console.log(`Created lobby with code: ${lobbyCode}`);
+        console.log(`Created lobby with code: ${lobby.id}`);
     });
 
     socket.on('lobby:join', (lobbyCode) => {
@@ -48,14 +50,14 @@ io.on('connection', (socket) => {
         }
 
         socket.join(lobbyCode);
-        
+        socket.emit("lobby:joined", lobby.id);
         io.to(lobby.id).emit('lobby:update', {players: lobby.getPlayerList(), host: lobby.host});
 
         console.log(`Joined lobby with code: ${lobbyCode}`);
     });
 
     // Handle Game starting 
-    socket.on('game:start', () => {
+    socket.on('game:start', (lobbyId) => {
         
         const lobby = lobbyManager.lobbies.get(lobbyId);
 
