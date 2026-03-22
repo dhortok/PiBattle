@@ -1,3 +1,5 @@
+const Game = require("./game");
+
 class Lobby {
     constructor(id, host) {
         this.id = id;
@@ -5,6 +7,7 @@ class Lobby {
         this.players = new Map();
         this.maxPlayer = 10;
         this.state = "waiting" // State: waiting, ingame
+        this.game = null;
     }
 
     addPlayer(socket) {
@@ -23,8 +26,16 @@ class Lobby {
         return [...this.players.values()];
     }
 
-    start_game() {
+    startGame(io) {
+        if (this.state != "waiting") return null;
+        if (this.game) return null;
 
+        this.game = new Game(this);
+        this.state = "playing";
+
+        this.game.startGame(io);
+
+        return this.game;
     }
 }
 
@@ -42,6 +53,8 @@ class LobbyManager {
 
         this.lobbies.set(id, lobby);
 
+        console.log(this.lobbies);
+
         return lobby;
     }
 
@@ -49,6 +62,8 @@ class LobbyManager {
         const lobby = this.lobbies.get(lobbyId);
         
         if (!lobby) return null;
+
+        if (lobby.state != "waiting") return null;
 
         if (!lobby.addPlayer(socket)) return null;
 
@@ -77,16 +92,12 @@ class LobbyManager {
         let id;
 
         do {
-            // Test id kiosztás
-            id = Math.floor(1000 + (Math.random() * 9000));
-
-            // Későbbi id kiosztás
-            // id = Math.random().toString(36).substring(2, 6).toUpperCase();
+            // id kiosztás
+            id = Math.random().toString(36).substring(2, 6).toUpperCase();
         } while (this.lobbies.has(id));
 
         return id;
     }
 }
 
-module.exports = Lobby;
 module.exports = LobbyManager;

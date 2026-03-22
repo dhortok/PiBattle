@@ -3,7 +3,7 @@ const socketio = require('socket.io');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const LobbyManager = require("./src/lobby")
+const LobbyManager = require("./src/lobby");
 
 const lobbyManager = new LobbyManager();
 
@@ -42,7 +42,11 @@ io.on('connection', (socket) => {
 
     socket.on('lobby:join', (lobbyCode) => {
 
+        console.log(lobbyCode);
+
         const lobby = lobbyManager.joinLobby(lobbyCode, socket);
+
+        console.log(lobby);
 
         if (!lobby) {
             socket.emit("lobby:error", "The lobby was not found, or it was full!");
@@ -64,9 +68,7 @@ io.on('connection', (socket) => {
         if (!lobby) return;
         if (lobby.host !== socket.id) return;
 
-        lobby.state = "playing";
-
-        io.to(lobby.id).emit("game:start");
+        lobby.startGame(io);
 
         console.log('Game started');
     });
