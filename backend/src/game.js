@@ -15,6 +15,9 @@ class Game {
             this.scores.set(id, 0)
         });
 
+
+        console.log("Game.start called");
+
         this.sendQuestion(io);
     }
 
@@ -36,7 +39,8 @@ class Game {
 
         // TESZT: később időig fog menni
         if (this.answers.size === this.lobby.players.size) {
-            this.evaluate(io);
+            console.log("Számoljuk a pontokat!");
+            this.scoreCalculate(io);
         }
     }
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import QuizGame from "./Game";
 import { socket } from "../socket";
 
 export default function Lobby({ lobbyId }) {
 
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
 
     useEffect(() => {
 
@@ -14,7 +16,7 @@ export default function Lobby({ lobbyId }) {
         });
 
         socket.on("game:start", () => {
-            alert("Game started!");
+            setGameStarted(true);
         });
 
         return () => {
@@ -29,23 +31,35 @@ export default function Lobby({ lobbyId }) {
     };
 
     return (
+        
         <div>
-            <h2>Lobby: {lobbyId}</h2>
+            
 
-            <h3>Players:</h3>
-            <ul>
-                {players.map(p => (
-                    <li key={p.id}>
-                        {p.name} {p.id === host && "(HOST)"}
-                    </li>
-                ))}
-            </ul>
+            {gameStarted
+                ? <QuizGame lobbyId={lobbyId} />
+                : (
+                    <>
+                        <h2>Lobby: {lobbyId}</h2>
 
-            {socket.id === host && (
-                <button onClick={startGame}>
-                    Start Game
-                </button>
-            )}
+                        <h3>Players:</h3>
+                        <ul>
+                            {players.map(p => (
+                                
+                                <li key={p.id}>
+                                    {p.name} {p.id === host && "(HOST)"}
+                                </li>
+                                
+                            ))}
+                        </ul>
+
+                        {socket.id === host && (
+                            <button onClick={startGame}>
+                                Start Game
+                            </button>
+                        )}
+                    </>
+                )
+            }
         </div>
     );
 }

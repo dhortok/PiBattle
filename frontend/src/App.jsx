@@ -36,6 +36,7 @@ function App() {
                 ? <Home setLobbyId={setLobbyId} />
                 : <Lobby lobbyId={lobbyId} />
             }
+            
         </div>
     );
 }

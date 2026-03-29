@@ -19,7 +19,12 @@ class Lobby {
     }
 
     removePlayer(socket){
+        this.players.delete(socket.id);
 
+        if (this.host === socket.id) {
+            const next = this.players.keys().next().value;
+            this.host = next || null;
+        }
     }
 
     getPlayerList() {

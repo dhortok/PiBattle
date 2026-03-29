@@ -68,9 +68,23 @@ io.on('connection', (socket) => {
         if (!lobby) return;
         if (lobby.host !== socket.id) return;
 
-        lobby.startGame(io);
+        io.to(lobbyId).emit("game:start");
 
-        console.log('Game started');
+        setTimeout(() => {
+            lobby.startGame(io);
+        }, 200);
+
+        console.log("START GAME LOBBY:", lobbyId);
+    });
+
+    socket.on("game:answer", ({ lobbyId, answer }) => {
+
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+        console.log(lobby);
+
+        if (!lobby || ! lobby.game) return;
+
+        lobby.game.submitAnswer(socket.id, answer, io);
     });
 
     // Handle client disconnection
