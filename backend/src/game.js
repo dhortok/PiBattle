@@ -1,9 +1,11 @@
-const testQuestions = require("./questions")
+const allQuestions = require("./questions")
 
 class Game {
     constructor(lobby) {
         this.lobby = lobby;
         this.questionIndex = 0;
+        this.questions = allQuestions("algb", 5); // TESZT
+        // this.questions = QuestionsGen.allQuestions(lobby.category, lab.maxQuestion);
         this.answers = new Map();
         this.scores = new Map();
     }
@@ -22,7 +24,7 @@ class Game {
     }
 
     sendQuestion(io) {
-        const q = testQuestions[this.questionIndex];
+        const q = this.questions[this.questionIndex];
 
         this.answers.clear();
 
@@ -45,7 +47,7 @@ class Game {
     }
 
     scoreCalculate(io) {
-        const q = testQuestions[this.currentQuestionIndex];
+        const q = this.questions[this.questionIndex];
 
         this.answers.forEach((answer, socketId) => {
             if (answer === q.correct) {
@@ -66,7 +68,7 @@ class Game {
     nextQuestion(io) {
         this.currentQuestionIndex++;
 
-        if (this.currentQuestionIndex >= testQuestions.length) {
+        if (this.currentQuestionIndex >= this.questions.length) {
             this.end(io);
             return;
         }

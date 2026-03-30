@@ -30,9 +30,7 @@ function allQuestions(category, maxQuestion){
 function generateQuestions(category) {
 
     switch (category) {
-        case "algb":     //algebra
-            
-            break;
+        case "algb": return genAlgbQuestion();   //algebra
         
         case "geom":     //geometria
             
@@ -62,5 +60,59 @@ function generateQuestions(category) {
 }
 
 
-module.exports = test;
-// module.exports = allQuestions;
+// Algeberai kérdések generálása
+function genAlgbQuestion() {
+    const random = Math.random();
+
+    const a = 1 + Math.round(10 * Math.random());
+    const b = 1 + Math.round(10 * Math.random());
+    const c = 1 + Math.round(10 * Math.random());
+    const d = 1 + Math.round(10 * Math.random());
+
+    let x = 0;
+    let egyenlet = "";
+
+    if (random < 0.25) {
+        x = (c-b)/a;
+        egyenlet = `${a}x+${b}=${c}`;
+    } else if (random < 0.5) {
+        x = (d-b)/(a-c);
+        egyenlet = `${a}x+${b}=${c}x+${d}`;
+    } else if (random < 0.75) {
+        x = (c+b)/a;
+        egyenlet = `${a}x-${b}=${c}`;
+    } else {
+        x = (d-b)/(a-c);
+        egyenlet = `${a}x+${b}=${c}x-${d}`;
+    }
+
+    const question = "Old meg az egyenletet x-re:<br>" + egyenlet;
+    let answers = [x];
+    for (let i = 0; i < 3; i++) {
+        answers.push(1 + (10 * Math.random()));
+    }
+
+    // LISTA ELEMEINEK FELCSERÉLÉSE RANDOM
+    for (let i = answers.length - 1; i > 0; i--) {
+        // Véletlen index kiválasztása
+        const j = Math.floor(Math.random() * (i + 1));
+        
+        // Elemeinek felcserélése
+        [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+
+
+    return {
+        question: question,
+        answers: answers,
+        correct: x
+    }
+}
+
+
+
+
+
+
+//module.exports = test;
+module.exports = allQuestions;
