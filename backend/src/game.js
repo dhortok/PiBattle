@@ -5,7 +5,10 @@ class Game {
         this.lobby = lobby;
         this.questionIndex = 0;
         this.questions = allQuestions("algb", 5); // TESZT
-        // this.questions = QuestionsGen.allQuestions(lobby.category, lab.maxQuestion);
+        // this.questions = QuestionsGen.allQuestions(lobby.category, lobby.maxQuestion); // REAL
+        this.questionStartTime = null;
+        this.maxTime = 30000; //milisec TESZT (30 sec)
+        // this.maxTime = lobby.maxTime * 1000; //milisec REAL
         this.answers = new Map();
         this.scores = new Map();
     }
@@ -25,19 +28,29 @@ class Game {
 
     sendQuestion(io) {
         const q = this.questions[this.questionIndex];
-
+        
+        this.isNextRound = false;
+        this.ended = false;
         this.answers.clear();
+        this.questionStartTime = Date.now();
 
         io.to(this.lobby.id).emit("game:question", {
             question: q.question,
-            answers: q.answers
+            answers: q.answers,
+            maxTime: this.maxTime
         });
+
+        setTimeout(() => {
+            this.scoreCalculate(io);
+        }, this.maxTime);
     }
 
     submitAnswer(socketId, answer, io) {
         if (this.answers.has(socketId)) return;
 
-        this.answers.set(socketId, answer);
+        const timeTaken = Date.now() - this.questionStartTime;
+
+        this.answers.set(socketId, {answer, time:timeTaken});
 
         // TESZT: később időig fog menni
         if (this.answers.size === this.lobby.players.size) {
@@ -46,12 +59,25 @@ class Game {
         }
     }
 
+    static pointCalculator(time, maxTime) { //mindkét változónak ugyanaz az időform. kell
+        let point = 100;
+        const hatv = Math.pow(10,-(time / maxTime));
+
+        point *= hatv;
+
+        return Math.round(point);
+    }
+
     scoreCalculate(io) {
+        if (this.ended) return;
+        this.ended = true;
+
         const q = this.questions[this.questionIndex];
 
-        this.answers.forEach((answer, socketId) => {
-            if (answer === q.correct) {
-                this.scores.set(socketId, this.scores.get(socketId) + 1);
+        this.answers.forEach((data, socketId) => {
+            if (data.answer === q.correct) {
+                const score = Game.pointCalculator(data.time, this.maxTime);
+                this.scores.set(socketId, this.scores.get(socketId) + score);
             }
         });
 
@@ -60,19 +86,23 @@ class Game {
             scores: Object.fromEntries(this.scores)
         })
 
+
         setTimeout(() => {
+            this.isNextRound = true;
             this.nextQuestion(io);
-        }, 5000);
+        }, 10000);
+
     }
 
     nextQuestion(io) {
-        this.currentQuestionIndex++;
+        this.questionIndex++;
 
-        if (this.currentQuestionIndex >= this.questions.length) {
+        if (this.questionIndex >= this.questions.length) {
             this.end(io);
             return;
         }
 
+        console.log("Current Q index: " + this.questionIndex);
         this.sendQuestion(io);
     }
 

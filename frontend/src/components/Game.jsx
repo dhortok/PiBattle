@@ -10,14 +10,43 @@ export default function QuizGame({ lobbyId }) {
     const [correct, setCorrect] = useState(null);
     const [scores, setScores] = useState({});
 
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [maxTime, setMaxTime] = useState(10000);
+
+    // TIMER
+    useEffect(() => {
+        if (gameState !== "question") return;
+
+        const interval = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 0) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 100;
+            });
+        }, 100);
+
+        return () => clearInterval(interval);
+
+    }, [gameState]);
+
+    // SOCKET EVENTS
     useEffect(() => {
 
         socket.on("game:question", (data) => {
+            console.log("DATA: ", data);
+
             setGameState("question");
             setQuestion(data.question);
             setAnswers(data.answers);
             setSelected(null);
             setCorrect(null);
+
+            console.log(data.time);
+
+            setMaxTime(data.maxTime);
+            setTimeLeft(data.maxTime);
         });
 
         socket.on("game:result", (data) => {
@@ -41,9 +70,9 @@ export default function QuizGame({ lobbyId }) {
 
     const sendAnswer = (index) => {
         if (selected !== null) return;
-        setSelected(index);
+        if (timeLeft <= 0) return;
 
-        console.log(index);
+        setSelected(index);
 
         socket.emit("game:answer", {
             lobbyId,
@@ -51,59 +80,106 @@ export default function QuizGame({ lobbyId }) {
         });
     };
 
-    return (
-        <div style={{ padding: 20 }}>
+    // PROGRESS %
+    const progress = (timeLeft / maxTime) * 100;
+    console.log({ timeLeft, maxTime, progress });
 
-            {/* KÉRDÉSEK */}
+    // SCORE RENDEZÉS
+    const sortedScores = Object.entries(scores)
+        .sort((a, b) => b[1] - a[1]);
+
+    return (
+        <div style={{ padding: 20, maxWidth: 500, margin: "auto" }}>
+
+            {/* PROGRESS BAR */}
+            {gameState === "question" && (
+                <div style={{
+                    height: 10,
+                    background: "#eee",
+                    marginBottom: 20,
+                    borderRadius: 5,
+                    overflow: "hidden"
+                }}>
+                    <div style={{
+                        height: "100%",
+                        width: `${progress}%`,
+                        background: progress > 50
+                            ? "#4caf50"
+                            : progress > 20
+                                ? "#ff9800"
+                                : "#f44336",
+                        transition: "width 0.1s linear"
+                    }} />
+                </div>
+            )}
+
+            {/* KÉRDÉS */}
             {gameState === "question" && (
                 <>
                     <h2>{question}</h2>
 
-                    {answers.map((a, i) => (
-                        <button
-                            key={i}
-                            onClick={() => sendAnswer(i)}
-                            style={{
-                                display: "block",
-                                margin: "10px 0",
-                                padding: "10px",
-                                background:
-                                    selected === i ? "#ccc" : "#fff",
-                                color: "#000"
-                            }}
-                        >
-                            {a}
-                        </button>
-                    ))}
+                    {answers.map((a, i) => {
+
+                        let bg = "#fff";
+
+                        if (selected === i) bg = "#ccc";
+
+                        if (gameState === "result") {
+                            if (i === correct) bg = "#4caf50";
+                            else if (selected === i) bg = "#f44336";
+                        }
+
+                        return (
+                            <button
+                                key={i}
+                                onClick={() => sendAnswer(i)}
+                                disabled={timeLeft <= 0 || selected !== null}
+                                style={{
+                                    display: "block",
+                                    margin: "10px 0",
+                                    padding: "12px",
+                                    width: "100%",
+                                    background: bg,
+                                    color: "#000",
+                                    border: "1px solid #ddd",
+                                    borderRadius: 8,
+                                    cursor: "pointer",
+                                    transition: "0.2s"
+                                }}
+                            >
+                                {a}
+                            </button>
+                        );
+                    })}
                 </>
             )}
 
-            {/* KÉRDÉS EREDMÉNY */}
+            {/* RESULT */}
             {gameState === "result" && (
                 <>
-                    <h2>Correct answer: {answers[correct]}</h2>
+                    <h2>Correct: {answers[correct]}</h2>
 
-                    <h3>Scores:</h3>
+                    <h3>Leaderboard:</h3>
                     <ul>
-                        {Object.entries(scores).map(([id, score]) => (
+                        {sortedScores.map(([id, score], index) => (
                             <li key={id}>
-                                {id}: {score}
+                                #{index + 1} — {id.slice(0, 4)}: {score}
                             </li>
                         ))}
                     </ul>
                 </>
             )}
 
-            {/* JÁTÉK VÉGE */}
+            {/* END */}
             {gameState === "end" && (
                 <>
-                    <h2>Game Over</h2>
+                    <h2>🏆 Game Over</h2>
 
-                    <h3>Final Scores:</h3>
+                    <h3>Final Ranking:</h3>
                     <ul>
-                        {Object.entries(scores).map(([id, score]) => (
+                        {sortedScores.map(([id, score], index) => (
                             <li key={id}>
-                                {id}: {score}
+                                #{index + 1} — {id.slice(0, 4)}: {score}
                             </li>
                         ))}
                     </ul>

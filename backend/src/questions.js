@@ -86,7 +86,7 @@ function genAlgbQuestion() {
         egyenlet = `${a}x+${b}=${c}x-${d}`;
     }
 
-    const question = "Old meg az egyenletet x-re:<br>" + egyenlet;
+    const question = "Old meg az egyenletet x-re:\n" + egyenlet;
     let answers = [x];
     for (let i = 0; i < 3; i++) {
         answers.push(1 + (10 * Math.random()));
@@ -105,7 +105,7 @@ function genAlgbQuestion() {
     return {
         question: question,
         answers: answers,
-        correct: x
+        correct: answers.indexOf(x)
     }
 }
 
