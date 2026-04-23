@@ -8,12 +8,18 @@ class Lobby {
         this.maxPlayer = 10;
         this.state = "waiting" // State: waiting, ingame
         this.game = null;
+        this.guest = 1;
     }
 
-    addPlayer(socket) {
+    addPlayer(socket, nickname="Guest") {
         if (this.players.size >= this.maxPlayer) return false;
 
-        this.players.set(socket.id, "player")
+        this.players.set(socket.id, {
+            socketId: socket.id,
+            nickname: (nickname==="Guest") ? nickname + (this.guest++) : nickname,
+            userId: socket.user?.userId || null,
+            // score: 0
+        });
 
         return true;
     }
