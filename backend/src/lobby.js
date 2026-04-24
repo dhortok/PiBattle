@@ -11,16 +11,24 @@ class Lobby {
         this.guest = 1;
     }
 
-    addPlayer(socket, nickname="Guest") {
+    addPlayer(socket, name) {
         if (this.players.size >= this.maxPlayer) return false;
-
+    
+        let nickname;
+    
+        if (socket.user?.userId) {
+            nickname = `User_${socket.user.userId}`; // DB LEKÉRDEZÉS KELL IDE!!! (most csak teszt)
+        } else {
+            nickname = name || `Guest${this.guest++}`;
+        }
+    
         this.players.set(socket.id, {
             socketId: socket.id,
-            nickname: (nickname==="Guest") ? nickname + (this.guest++) : nickname,
+            nickname,
             userId: socket.user?.userId || null,
             // score: 0
         });
-
+    
         return true;
     }
 
@@ -56,11 +64,11 @@ class LobbyManager {
         this.lobbies = new Map();
     }
 
-    createLobby(socket) {
+    createLobby(socket, name) {
         const id = this.generateLobbyId();
 
         const lobby = new Lobby(id, socket.id);
-        lobby.addPlayer(socket);
+        lobby.addPlayer(socket, name);
 
         this.lobbies.set(id, lobby);
 
@@ -69,14 +77,14 @@ class LobbyManager {
         return lobby;
     }
 
-    joinLobby(lobbyId, socket) {
+    joinLobby(lobbyId, socket, name) {
         const lobby = this.lobbies.get(lobbyId);
         
         if (!lobby) return null;
 
         if (lobby.state != "waiting") return null;
 
-        if (!lobby.addPlayer(socket)) return null;
+        if (!lobby.addPlayer(socket, name)) return null;
 
         return lobby;
     }

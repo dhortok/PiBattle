@@ -46,7 +46,7 @@ export default function Lobby({ lobbyId }) {
                             {players.map(p => (
                                 
                                 <li key={p.id}>
-                                    {p.name} {p.id === host && "(HOST)"}
+                                    {p.nickname} {p.id === host && "(HOST)"}
                                 </li>
                                 
                             ))}

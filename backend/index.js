@@ -53,9 +53,8 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     console.log('New client connected: ', socket.id);
 
-    socket.on('lobby:create', () => {
-        
-        const lobby = lobbyManager.createLobby(socket);
+    socket.on('lobby:create', ({ name }) => {
+        const lobby = lobbyManager.createLobby(socket, name);
 
         console.log(lobby);
 
@@ -66,11 +65,10 @@ io.on('connection', (socket) => {
         console.log(`Created lobby with code: ${lobby.id}`);
     });
 
-    socket.on('lobby:join', (lobbyCode) => {
+    socket.on('lobby:join', ({ lobbyCode, name }) => {
+        console.log(lobbyCode)
 
-        console.log(lobbyCode);
-
-        const lobby = lobbyManager.joinLobby(lobbyCode, socket);
+        const lobby = lobbyManager.joinLobby(lobbyCode, socket, name);
 
         console.log(lobby);
 
@@ -132,40 +130,84 @@ io.on('connection', (socket) => {
 
 app.use(express.json());
 
+// REGISTRATION API
 app.post("/api/register", async (req, res) => {
     const { email, password, username } = req.body;
 
-    // validate input
-    if(!email || !password || !username) {
-        return res.status(400).send("Missing required field!");
+    if (!email || !password || !username) {
+        return res.status(400).json({ message: "Missing fields" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
 
-    const result = await dbManager.query(
-        "INSERT INTO users (email, password, username) VALUES ($1,$2,$3) RETURNING id",
-        [email, hashed, username]
-    );
+    try {
+        const result = await dbManager.query(
+            "INSERT INTO users (email, password, username) VALUES ($1,$2,$3) RETURNING id",
+            [email, hashed, username]
+        );
 
-    res.status(201).send("User registered successfully!");
+        res.status(201).json({
+            message: "User registered"
+        });
+
+    } catch (err) {
+        res.status(400).json({
+            message: "User already exists"
+        });
+    }
 });
 
-
+// LOGIN API
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await dbManager.getUserByEmail(email);
 
-    if (!user) return res.status(401).send("No user");
+    if (!user) {
+        return res.status(401).json({ message: "No user" });
+    }
 
     const valid = await bcrypt.compare(password, user.password);
 
-    if (!valid) return res.status(401).send("Wrong password");
+    if (!valid) {
+        return res.status(401).json({ message: "Wrong password" });
+    }
 
     const token = jwt.sign(
         { userId: user.id },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
     );
 
-    res.json({ token });
+    res.json({
+        token,
+        user: {
+            id: user.id,
+            email: user.email,
+            username: user.username
+        }
+    });
+});
+
+// USER API
+app.get("/api/me", async (req, res) => {
+    const auth = req.headers.authorization;
+
+    if (!auth) return res.status(401).json({ message: "No token" });
+
+    const token = auth.split(" ")[1];
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await dbManager.query(
+            "SELECT id, email, username FROM users WHERE id = $1",
+            [decoded.userId]
+        );
+
+        res.json({ user: user.rows[0] });
+
+    } catch {
+        res.status(401).json({ message: "Invalid token" });
+    }
 });
