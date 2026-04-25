@@ -95,10 +95,21 @@ class Game {
             }
         });
 
+        const scoresWithNames = {}; // Eltároljuk név szerint a frontendnek
+
+        this.scores.forEach((score, socketId) => {
+            const player = this.lobby.players.get(socketId);
+    
+            scoresWithNames[socketId] = {
+                score,
+                name: player?.nickname || "Unknown"
+            };
+        });
+    
         io.to(this.lobby.id).emit("game:result", {
             correct: q.correct,
-            scores: Object.fromEntries(this.scores)
-        })
+            scores: scoresWithNames
+        });
 
 
         setTimeout(() => {

@@ -86,7 +86,7 @@ export default function QuizGame({ lobbyId }) {
 
     // SCORE RENDEZÉS
     const sortedScores = Object.entries(scores)
-        .sort((a, b) => b[1] - a[1]);
+        .sort((a, b) => b[1].score - a[1].score);
 
     return (
         <div style={{ padding: 20, maxWidth: 500, margin: "auto" }}>
@@ -161,11 +161,11 @@ export default function QuizGame({ lobbyId }) {
 
                     <h3>Leaderboard:</h3>
                     <ul>
-                        {sortedScores.map(([id, score], index) => (
-                            <li key={id}>
-                                #{index + 1} — {id.slice(0, 4)}: {score}
-                            </li>
-                        ))}
+                    {sortedScores.map(([id, data], index) => (
+                        <li key={id}>
+                            #{index + 1} — {data.name}: {data.score}
+                        </li>
+                    ))}
                     </ul>
                 </>
             )}
@@ -177,11 +177,11 @@ export default function QuizGame({ lobbyId }) {
 
                     <h3>Final Ranking:</h3>
                     <ul>
-                        {sortedScores.map(([id, score], index) => (
-                            <li key={id}>
-                                #{index + 1} — {id.slice(0, 4)}: {score}
-                            </li>
-                        ))}
+                    {sortedScores.map(([id, data], index) => (
+                        <li key={id}>
+                            #{index + 1} — {data.name}: {data.score}
+                        </li>
+                    ))}
                     </ul>
                 </>
             )}
