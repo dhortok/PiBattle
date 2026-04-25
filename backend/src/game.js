@@ -9,6 +9,7 @@ class Game {
         this.questionStartTime = null;
         this.maxTime = 30000; //milisec TESZT (30 sec)
         // this.maxTime = lobby.maxTime * 1000; //milisec REAL
+        this.timer = null; // ez felel az időzítőért
         this.answers = new Map();
         this.scores = new Map();
     }
@@ -34,13 +35,20 @@ class Game {
         this.answers.clear();
         this.questionStartTime = Date.now();
 
+        // Törli a timert, ha van
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+
         io.to(this.lobby.id).emit("game:question", {
             question: q.question,
             answers: q.answers,
             maxTime: this.maxTime
         });
 
-        setTimeout(() => {
+        // Időzítő a kör végére
+        this.timer = setTimeout(() => {
+            console.log("Lejárt az idő!\nSzámoljuk a pontokat!");
             this.scoreCalculate(io);
         }, this.maxTime);
     }
@@ -54,7 +62,7 @@ class Game {
 
         // TESZT: később időig fog menni
         if (this.answers.size === this.lobby.players.size) {
-            console.log("Számoljuk a pontokat!");
+            console.log("Mindenki válaszolt!\nSzámoljuk a pontokat!");
             this.scoreCalculate(io);
         }
     }
@@ -71,6 +79,12 @@ class Game {
     scoreCalculate(io) {
         if (this.ended) return;
         this.ended = true;
+
+        // Töröljük az időzítőt, hogyha van
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
 
         const q = this.questions[this.questionIndex];
 
