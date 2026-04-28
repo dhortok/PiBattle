@@ -84,6 +84,25 @@ io.on('connection', (socket) => {
         console.log(`Joined lobby with code: ${lobbyCode}`);
     });
 
+    socket.on("lobby:leave", (lobbyId) => {
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+        if (!lobby) return;
+
+        console.log(lobby);
+
+        lobby.removePlayer(socket);
+
+        socket.leave(lobbyId);
+
+        socket.emit("lobby:left");
+    
+        io.to(lobbyId).emit("lobby:update", {
+            players: lobby.getPlayerList(),
+            host: lobby.host
+        });
+
+    });
+
     // Handle Game starting 
     socket.on('game:start', (lobbyId) => {
         

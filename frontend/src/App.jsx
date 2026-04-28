@@ -19,6 +19,10 @@ function App() {
 
         socket.on("lobby:created", setLobbyId);
         socket.on("lobby:joined", setLobbyId);
+        socket.on("lobby:left", () => {
+            localStorage.removeItem("lobbyId");
+            setLobbyId(null);
+        });
 
         return () => {
             socket.off("lobby:created");

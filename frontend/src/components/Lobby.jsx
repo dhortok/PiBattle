@@ -30,6 +30,10 @@ export default function Lobby({ lobbyId }) {
         socket.emit("game:start", lobbyId);
     };
 
+    const leaveLobby = () => {
+        socket.emit("lobby:leave", lobbyId);
+    };
+
     return (
         
         <div>
@@ -51,6 +55,8 @@ export default function Lobby({ lobbyId }) {
                                 
                             ))}
                         </ul>
+
+                        <button onClick={leaveLobby}> Leave lobby </button>
 
                         {socket.id === host && (
                             <button onClick={startGame}>

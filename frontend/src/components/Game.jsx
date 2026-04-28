@@ -88,6 +88,14 @@ export default function QuizGame({ lobbyId }) {
     const sortedScores = Object.entries(scores)
         .sort((a, b) => b[1].score - a[1].score);
 
+    const leaveLobby = () => {
+        socket.emit("lobby:leave");
+    };
+    
+    const returnLobby = () => {
+        socket.emit();
+    }
+
     return (
         <div style={{ padding: 20, maxWidth: 500, margin: "auto" }}>
 
@@ -183,6 +191,9 @@ export default function QuizGame({ lobbyId }) {
                         </li>
                     ))}
                     </ul>
+
+                    <button onClick={leaveLobby}>Leave lobby</button>
+                    <button onClick={returnLobby}>Return to lobby</button>
                 </>
             )}
 
