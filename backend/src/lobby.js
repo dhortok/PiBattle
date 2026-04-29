@@ -5,14 +5,19 @@ class Lobby {
         this.id = id;
         this.host = host;
         this.players = new Map();
-        this.maxPlayer = 10;
         this.state = "waiting" // State: waiting, ingame
         this.game = null;
         this.guest = 1;
+        this.settings = {
+            maxPlayer: 5, // max játékosok száma
+            rounds: 5, // körök száma
+            maxQuestionTime: 30000, // max idő a kérdésre (ms)
+            category: "geom" // Kérdés kategóriája
+        }
     }
 
     addPlayer(socket, name) {
-        if (this.players.size >= this.maxPlayer) return false;
+        if (this.players.size >= this.settings.maxPlayer) return false;
     
         let nickname;
     

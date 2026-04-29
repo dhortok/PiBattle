@@ -3,12 +3,11 @@ const allQuestions = require("./questions")
 class Game {
     constructor(lobby) {
         this.lobby = lobby;
+        this.settings = lobby.settings; // lobby beállítások rögzítése
         this.questionIndex = 0;
-        this.questions = allQuestions("geom", 5); // TESZT
-        // this.questions = QuestionsGen.allQuestions(lobby.category, lobby.maxQuestion); // REAL
+        this.questions = allQuestions(this.settings.category, this.settings.rounds); // Legenerálja a kérdéseket
         this.questionStartTime = null;
-        this.maxTime = 30000; //milisec TESZT (30 sec)
-        // this.maxTime = lobby.maxTime * 1000; //milisec REAL
+        this.maxTime = this.settings.maxQuestionTime; // max idő válaszadásra (ms)
         this.timer = null; // ez felel az időzítőért
         this.answers = new Map();
         this.scores = new Map();
