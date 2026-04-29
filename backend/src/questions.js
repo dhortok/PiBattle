@@ -17,6 +17,15 @@ const test = [
 ];
 
 
+function randomBetween(min, max, integer = false) {
+    if (integer) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    } else {
+      return Math.random() * (max - min) + min;
+    }
+}
+
+
 function allQuestions(category, maxQuestion){
     let questions = [];
 
@@ -64,10 +73,10 @@ function generateQuestions(category) {
 function genAlgbQuestion() {
     const random = Math.random();
 
-    const a = 1 + Math.round(10 * Math.random());
-    const b = 1 + Math.round(10 * Math.random());
-    const c = 1 + Math.round(10 * Math.random());
-    const d = 1 + Math.round(10 * Math.random());
+    const a = randomBetween(1, 10, true);
+    const b = randomBetween(1, 10, true);
+    const c = randomBetween(1, 10, true);
+    const d = randomBetween(1, 10, true);
 
     let x = 0;
     let egyenlet = "";
@@ -89,7 +98,7 @@ function genAlgbQuestion() {
     const question = "Old meg az egyenletet x-re:\n" + egyenlet;
     let answers = [x];
     for (let i = 0; i < 3; i++) {
-        answers.push(1 + (10 * Math.random()));
+        answers.push(randomBetween(1, 10));
     }
 
     // LISTA ELEMEINEK FELCSERÉLÉSE RANDOM
