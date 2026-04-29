@@ -101,7 +101,7 @@ class LobbyManager {
 
             if (lobby.players.has(socket.id)) {
 
-                lobby.removePlayer(socket.id);
+                lobby.removePlayer(socket);
 
                 if (lobby.players.size === 0) {
                     this.lobbies.delete(lobby.id);
