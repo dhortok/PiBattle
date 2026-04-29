@@ -4,7 +4,7 @@ class Game {
     constructor(lobby) {
         this.lobby = lobby;
         this.questionIndex = 0;
-        this.questions = allQuestions("algb", 5); // TESZT
+        this.questions = allQuestions("geom", 5); // TESZT
         // this.questions = QuestionsGen.allQuestions(lobby.category, lobby.maxQuestion); // REAL
         this.questionStartTime = null;
         this.maxTime = 30000; //milisec TESZT (30 sec)

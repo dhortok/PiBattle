@@ -17,12 +17,37 @@ const test = [
 ];
 
 
+function randomizeAnswers(answers) {
+    // LISTA ELEMEINEK FELCSERÉLÉSE RANDOM
+    for (let i = answers.length - 1; i > 0; i--) {
+        // Véletlen index kiválasztása
+        const j = Math.floor(Math.random() * (i + 1));
+        
+        // Elemeinek felcserélése
+        [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+    return answers;
+}
+
+
+
+
 function randomBetween(min, max, integer = false) {
     if (integer) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     } else {
       return Math.random() * (max - min) + min;
     }
+}
+
+
+function lnko(x, y) {
+    if(x == y) return x;
+    if(y < x) {[x, y] = [y, x];}
+    while(0 < x){
+        [x, y] = [y % x, x];
+    }
+    return y;
 }
 
 
@@ -39,11 +64,9 @@ function allQuestions(category, maxQuestion){
 function generateQuestions(category) {
 
     switch (category) {
-        case "algb": return genAlgbQuestion();   //algebra
+        case "algb": return genAlgbQuestion(); //algebra
         
-        case "geom":     //geometria
-            
-            break;
+        case "geom": return genGeomQuestion(); //geometria
         
         case "func":     //függvények
             
@@ -101,20 +124,44 @@ function genAlgbQuestion() {
         answers.push(randomBetween(1, 10));
     }
 
-    // LISTA ELEMEINEK FELCSERÉLÉSE RANDOM
-    for (let i = answers.length - 1; i > 0; i--) {
-        // Véletlen index kiválasztása
-        const j = Math.floor(Math.random() * (i + 1));
-        
-        // Elemeinek felcserélése
-        [answers[i], answers[j]] = [answers[j], answers[i]];
-    }
-
+    answers = randomizeAnswers(answers);
 
     return {
         question: question,
         answers: answers,
         correct: answers.indexOf(x)
+    }
+}
+
+
+function genGeomQuestion() {
+    
+    // Jelenleg csak derékszögű háromszögek
+    // random változók
+    const k = randomBetween(1, 3, true);
+    const m = randomBetween(2, 7, true);
+    let n = 1;
+    do {
+        n = randomBetween(1, m-1, true);
+    } while (m % 2 == n % 2 && lnko(m, n) != 1)
+
+    // Háromszög oldalai
+    const a = 2*k*m*n;
+    const b = k*(m**2 - n**2);
+    const c = k*(m**2 + n**2);
+    
+    const question = "Mekkora a derékszögű háromszög átlója, ha a két befogója: " + a + ", és " + b + "?";
+    let answers = [c];
+    for (let i = 0; i < 3; i++) {
+        answers.push(randomBetween(Math.floor(c/2), c*2, true));
+    }
+
+    answers = randomizeAnswers(answers);
+
+    return {
+        question: question,
+        answers: answers,
+        correct: answers.indexOf(c)
     }
 }
 
