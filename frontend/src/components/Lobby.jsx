@@ -47,14 +47,18 @@ export default function Lobby({ lobbyId }) {
 
                         <h3>Players:</h3>
                         <ul>
-                            {players.map(p => (
-                                
-                                <li key={p.id}>
-                                    {p.nickname} {p.id === host && "(HOST)"}
-                                </li>
-                                
-                            ))}
+                        {players.map(p => (
+                            <li key={p.socketId}>
+                                {p.nickname}
+                                {p.ready ? " ✅" : " ❌"}
+                                {p.socketId === host && " (HOST)"}
+                            </li>
+                        ))}
                         </ul>
+
+                        <button onClick={() => socket.emit("player:ready", lobbyId)}>
+                            Toggle Ready
+                        </button>
 
                         <button onClick={leaveLobby}> Leave lobby </button>
 

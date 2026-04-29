@@ -26,6 +26,7 @@ class Lobby {
             socketId: socket.id,
             nickname,
             userId: socket.user?.userId || null,
+            ready: false,
             // score: 0
         });
     
@@ -43,6 +44,12 @@ class Lobby {
 
     getPlayerList() {
         return [...this.players.values()];
+    }
+
+    canStart() {
+        if (this.players.size < 1) return false;
+    
+        return [...this.players.values()].every(p => p.ready);
     }
 
     startGame(io) {

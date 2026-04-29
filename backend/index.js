@@ -103,21 +103,37 @@ io.on('connection', (socket) => {
 
     });
 
+
+    // READY SYSTEM
+    socket.on("player:ready", (lobbyId) => {
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+        if (!lobby) return;
+    
+        const player = lobby.players.get(socket.id);
+        if (!player) return;
+    
+        player.ready = !player.ready;
+    
+        io.to(lobbyId).emit("lobby:update", {
+            players: lobby.getPlayerList(),
+            host: lobby.host
+        });
+    });
+
+
     // Handle Game starting 
     socket.on('game:start', (lobbyId) => {
-        
         const lobby = lobbyManager.lobbies.get(lobbyId);
-
+    
         if (!lobby) return;
         if (lobby.host !== socket.id) return;
-
+        if (!lobby.canStart()) return;
+    
         io.to(lobbyId).emit("game:start");
-
+    
         setTimeout(() => {
             lobby.startGame(io);
         }, 200);
-
-        console.log("START GAME LOBBY:", lobbyId);
     });
 
     socket.on("game:answer", ({ lobbyId, answer }) => {
