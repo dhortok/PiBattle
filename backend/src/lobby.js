@@ -129,6 +129,14 @@ class LobbyManager {
 
         return id;
     }
+
+    // VALIDATE SETTINGS
+    static validateSettings(settings) {
+        if (settings.maxPlayer < 2 || settings.maxPlayer > 100) return false;
+        if (settings.rounds < 3 || settings.rounds > 20) return false;
+        if (settings.maxQuestionTime < 10000 || settings.maxQuestionTime > 60000) return false;
+        return true;
+    }
 }
 
 module.exports = LobbyManager;

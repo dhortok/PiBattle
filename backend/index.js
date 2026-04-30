@@ -84,6 +84,25 @@ io.on('connection', (socket) => {
         console.log(`Joined lobby with code: ${lobbyCode}`);
     });
 
+    socket.on("lobby:updateSettings", ({lobbyId, settings}) => {
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+        if (!lobby) return;
+        if (lobby.host !== socket.id) return;
+
+        if (!LobbyManager.validateSettings(settings)) return;
+
+        lobby.settings = {
+            ...lobby.settings,
+            ...settings
+        }
+
+        io.to(lobby.id).emit('lobby:update', {
+            players: lobby.getPlayerList(), 
+            host: lobby.host,
+            settings: lobby.settings
+        });
+    });
+
     socket.on("lobby:leave", (lobbyId) => {
         const lobby = lobbyManager.lobbies.get(lobbyId);
         if (!lobby) return;
