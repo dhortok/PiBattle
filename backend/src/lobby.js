@@ -19,20 +19,16 @@ class Lobby {
     addPlayer(socket, name) {
         if (this.players.size >= this.settings.maxPlayer) return false;
     
-        let nickname;
-    
-        if (socket.user?.userId) {
-            nickname = `User_${socket.user.userId}`; // DB LEKÉRDEZÉS KELL IDE!!! (most csak teszt)
-        } else {
-            nickname = name || `Guest${this.guest++}`;
-        }
+        const nickname = socket.user?.userId
+        ? `User_${socket.user.userId}` // DB LEKÉRDEZÉS KELL IDE!!! (most csak teszt)
+        : name || `Guest${this.guest++}`;
     
         this.players.set(socket.id, {
             socketId: socket.id,
-            nickname,
+            sessionId: socket.sessionId,
             userId: socket.user?.userId || null,
-            ready: false,
-            // score: 0
+            nickname,
+            ready: false
         });
     
         return true;

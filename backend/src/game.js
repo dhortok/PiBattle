@@ -4,24 +4,37 @@ class Game {
     constructor(lobby) {
         this.lobby = lobby;
         this.settings = lobby.settings; // lobby beállítások rögzítése
+
         this.questionIndex = 0;
         this.questions = allQuestions(this.settings.category, this.settings.rounds); // Legenerálja a kérdéseket
         this.questionStartTime = null;
+        
         this.maxTime = this.settings.maxQuestionTime; // max idő válaszadásra (ms)
         this.timer = null; // ez felel az időzítőért
-        this.answers = new Map();
-        this.scores = new Map();
+
+        this.state = "waiting";
+
+        this.scores = {};
+        this.answers = new Set(); // ki válaszolt már
+
+        this.ended = false;
+
+        // Mindenkinek kezdetben 0 pont
+        for (const player of lobby.players.values()) {
+            const key = this.getPlayerKey(player);
+            this.scores[key] = 0;
+        }
+    }
+
+    // JÁTÉKOS AZONOSÍTÁSA
+    getPlayerKey(player) {
+        return player.userId || player.sessionId;
     }
 
     startGame(io) {
-
-        // Mindenkinek kezdetben 0 pont
-        this.lobby.players.forEach((_, id) => {
-            this.scores.set(id, 0)
-        });
-
-
         console.log("Game.start called");
+
+        this.state = "playing";
 
         this.sendQuestion(io);
     }
@@ -29,6 +42,7 @@ class Game {
     sendQuestion(io) {
         const q = this.questions[this.questionIndex];
         
+        this.state = "question";
         this.isNextRound = false;
         this.ended = false;
         this.answers.clear();
@@ -47,35 +61,51 @@ class Game {
 
         // Időzítő a kör végére
         this.timer = setTimeout(() => {
-            console.log("Lejárt az idő!\nSzámoljuk a pontokat!");
-            this.scoreCalculate(io);
+            console.log("\nLejárt az idő!");
+            this.endQuestion(io);
         }, this.maxTime);
     }
 
+    getActivePlayerCount() {
+        return [...this.lobby.players.values()]
+            .map(p => this.getPlayerKey(p))
+            .filter(Boolean).length;
+    }
+
     submitAnswer(socketId, answer, io) {
-        if (this.answers.has(socketId)) return;
+        if (this.state !== "question") return;
 
+        const player = this.lobby.players.get(socketId);
+        if (!player) return;
+
+        const key = this.getPlayerKey(player);
+        if (this.answers.has(key)) return;
+
+        const q = this.questions[this.questionIndex];
+        
+        console.log("\n\nSzámoljuk a pontokat neki:\n", player);
+        this.answers.add(key);
+        const isCorrect = answer === q.correct;
         const timeTaken = Date.now() - this.questionStartTime;
+        const points = isCorrect ? this.pointCalculator(timeTaken) : 0;
+        this.scores[key] = (this.scores[key] || 0) + points;
 
-        this.answers.set(socketId, {answer, time:timeTaken});
-
-        // TESZT: később időig fog menni
-        if (this.answers.size === this.lobby.players.size) {
-            console.log("Mindenki válaszolt!\nSzámoljuk a pontokat!");
-            this.scoreCalculate(io);
+        if (this.answers.size === this.getActivePlayerCount()) {
+            console.log("Mindenki válaszolt!");
+            this.endQuestion(io);
         }
     }
 
-    static pointCalculator(time, maxTime) { //mindkét változónak ugyanaz az időform. kell
+    pointCalculator(time) { //mindkét változónak ugyanaz az időform. kell
         let point = 100;
-        const hatv = Math.pow(10,-(time / maxTime));
+        const hatv = Math.pow(10,-(time / this.maxTime));
 
         point *= hatv;
 
         return Math.round(point);
     }
 
-    scoreCalculate(io) {
+    endQuestion(io) {
         if (this.ended) return;
         this.ended = true;
 
@@ -87,24 +117,16 @@ class Game {
 
         const q = this.questions[this.questionIndex];
 
-        this.answers.forEach((data, socketId) => {
-            if (data.answer === q.correct) {
-                const score = Game.pointCalculator(data.time, this.maxTime);
-                this.scores.set(socketId, this.scores.get(socketId) + score);
-            }
-        });
-
+        this.state = "result";
+        
         const scoresWithNames = {}; // Eltároljuk név szerint a frontendnek
 
-        this.scores.forEach((score, socketId) => {
-            const player = this.lobby.players.get(socketId);
-    
-            scoresWithNames[socketId] = {
-                score,
-                name: player?.nickname || "Unknown"
-            };
-        });
-    
+       for (let player of this.lobby.players.values()) {
+            let key = this.getPlayerKey(player);
+
+            scoresWithNames[key] = {name: player?.nickname || "Unknown", score: this.scores[key]};
+       }
+
         io.to(this.lobby.id).emit("game:result", {
             correct: q.correct,
             scores: scoresWithNames
@@ -122,7 +144,7 @@ class Game {
         this.questionIndex++;
 
         if (this.questionIndex >= this.questions.length) {
-            this.end(io);
+            this.endGame(io);
             return;
         }
 
@@ -130,13 +152,64 @@ class Game {
         this.sendQuestion(io);
     }
 
-    end(io) {
-        io.to(this.lobby.id).emit("game:end", {
-            scores: Object.fromEntries(this.scores)
+    endGame(io) {
+        this.state = "ended";
+
+        const xpMap = this.calculateXP();
+        this.saveXP(xpMap);
+
+        const scoresWithNames = {}; // Eltároljuk név szerint a frontendnek
+
+        for (let player of this.lobby.players.values()) {
+            let key = this.getPlayerKey(player);
+
+            scoresWithNames[key] = {
+                name: player?.nickname || "Unknown", 
+                score: this.scores[key],
+                xp: xpMap[key]
+            };
+       }
+
+        io.to(this.lobby.id).emit("game:end", scoresWithNames);
+    }
+
+    // XP számolás
+    calculateXP() {
+        const sorted = Object.entries(this.scores)
+            .sort((a, b) => b[1] - a[1]);
+
+        const xpMap = {};
+
+        sorted.forEach(([key, score], index) => {
+            let xp = 0;
+            if (index === 0) xp += 100;
+            xp += score;
+            xpMap[key] = xp;
         });
 
-        this.lobby.state = "waiting";
+        return xpMap;
     }
+
+    saveXP(xpMap) {
+        const queries = [];
+
+        for (const player of this.lobby.players.values()) {
+            if (!player.userId) continue;
+
+            const key = this.getPlayerKey(player);
+            const xp = xpMap[key] || 0;
+
+            queries.push(
+                this.lobby.dbManager.query(
+                    "UPDATE users SET xp = xp + $1 WHERE id = $2",
+                    [xp, player.userId]
+                )
+            );
+        }
+
+        Promise.all(queries).catch(console.error);
+    }
+    
 }
 
 module.exports = Game;

@@ -56,8 +56,10 @@ export default function QuizGame({ lobbyId }) {
         });
 
         socket.on("game:end", (data) => {
+            console.log("GAME END DATA:", data);
+        
             setGameState("end");
-            setScores(data.scores);
+            setScores(data || {});
         });
 
         return () => {
@@ -185,11 +187,11 @@ export default function QuizGame({ lobbyId }) {
 
                     <h3>Final Ranking:</h3>
                     <ul>
-                    {sortedScores.map(([id, data], index) => (
-                        <li key={id}>
-                            #{index + 1} — {data.name}: {data.score}
-                        </li>
-                    ))}
+                        {sortedScores.map(([id, data], index) => (
+                            <li key={id}>
+                                #{index + 1} — {data.name}: {data.score} ({data.xp})
+                            </li>
+                        ))}
                     </ul>
 
                     <button onClick={leaveLobby}>Leave lobby</button>

@@ -2,6 +2,7 @@ const express = require('express');
 const socketio = require('socket.io');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,26 +33,33 @@ const io = socketio(server, {
 
 // middleware
 io.use((socket, next) => {
-    const token = socket.handshake.auth?.token;
+    const { token, sessionId } = socket.handshake.auth || {};
 
-    if (!token) {
-        socket.user = null; // guest
-        return next();
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        socket.user = decoded; // { userId }
-        next();
-    } catch (err) {
+    // JWT
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            socket.user = decoded;
+        } catch {
+            socket.user = null;
+        }
+    } else {
         socket.user = null;
-        next();
     }
+
+    // SESSION ID
+    if (sessionId) {
+        socket.sessionId = sessionId;
+    } else {
+        socket.sessionId = uuidv4();
+    }
+
+    next();
 });
 
 // Handle client connections
 io.on('connection', (socket) => {
-    console.log('New client connected: ', socket.id);
+    console.log('New client connected: ', socket.id, "; \nsessionId: ", socket.sessionId);
 
     socket.on('lobby:create', ({ name }) => {
         const lobby = lobbyManager.createLobby(socket, name);
@@ -146,6 +154,7 @@ io.on('connection', (socket) => {
     
         if (!lobby) return;
         if (lobby.host !== socket.id) return;
+        if (lobby.state !== "waiting") return;
         if (!lobby.canStart()) return;
     
         io.to(lobbyId).emit("game:start");
@@ -158,11 +167,38 @@ io.on('connection', (socket) => {
     socket.on("game:answer", ({ lobbyId, answer }) => {
 
         const lobby = lobbyManager.lobbies.get(lobbyId);
-        console.log(lobby);
 
         if (!lobby || ! lobby.game) return;
 
         lobby.game.submitAnswer(socket.id, answer, io);
+    });
+
+    socket.on("lobby:reconnect", (lobbyId) => {
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+        if (!lobby) return;
+    
+        const player = [...lobby.players.values()].find(p =>
+            (p.userId && p.userId === socket.user?.userId) ||
+            (p.sessionId && p.sessionId === socket.sessionId)
+        );
+    
+        if (!player) return;
+    
+        // 🔁 socketId frissítés
+        lobby.players.delete(player.socketId);
+    
+        player.socketId = socket.id;
+        lobby.players.set(socket.id, player);
+    
+        socket.join(lobbyId);
+    
+        socket.emit("lobby:joined", lobbyId);
+    
+        io.to(lobbyId).emit("lobby:update", {
+            players: lobby.getPlayerList(),
+            host: lobby.host
+        });
+    
     });
 
     // Handle client disconnection

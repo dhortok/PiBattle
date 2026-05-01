@@ -13,12 +13,29 @@ function App() {
     const [authMode, setAuthMode] = useState(null); // null | login | register
 
     useEffect(() => {
+        socket.on("connect", () => {
+            const savedLobby = localStorage.getItem("lobbyId");
+    
+            if (savedLobby) {
+                socket.emit("lobby:reconnect", savedLobby);
+            }
+        });
+    
+        return () => {
+            socket.off("connect");
+        };
+    }, []);
+
+    useEffect(() => {
         const token = localStorage.getItem("token");
 
         connectSocket(token);
 
         socket.on("lobby:created", setLobbyId);
-        socket.on("lobby:joined", setLobbyId);
+        socket.on("lobby:joined", (id) => {
+            localStorage.setItem("lobbyId", id);
+            setLobbyId(id);
+        });
         socket.on("lobby:left", () => {
             localStorage.removeItem("lobbyId");
             setLobbyId(null);
