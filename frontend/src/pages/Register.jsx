@@ -1,17 +1,17 @@
 // src/pages/Register.jsx
 import { useState } from "react";
 
-export default function Register() {
+export default function Register({onBack}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
     const [msg, setMsg] = useState("");
 
     const handleRegister = async () => {
         const res = await fetch("http://localhost:3000/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, name })
+            body: JSON.stringify({ email, password, username })
         });
 
         const data = await res.json();
@@ -28,9 +28,9 @@ export default function Register() {
             <h2>Register</h2>
 
             <input
-                placeholder="Name"
-                value={name}
-                onChange={e => setName(e.target.value)}
+                placeholder="username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
             />
 
             <input
@@ -50,6 +50,9 @@ export default function Register() {
 
             <button onClick={handleRegister}>
                 Register
+            </button>
+            <button onClick={onBack}>
+                Home
             </button>
         </div>
     );

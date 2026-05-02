@@ -62,10 +62,9 @@ function App() {
                 {user ? (
                     <>
                         <b>USER:</b> {user.username}
-                        <button onClick={() => {
-                            localStorage.removeItem("token");
-                            socket.disconnect();
-                            window.location.reload();
+                        <button onClick={() => { 
+                            logout(); 
+                            socket.disconnect(); 
                         }}>
                             Logout
                         </button>

@@ -201,7 +201,7 @@ class Game {
 
             queries.push(
                 this.lobby.dbManager.query(
-                    "UPDATE users SET xp = xp + $1 WHERE id = $2",
+                    "UPDATE users SET xp = xp + $1 WHERE user_id = $2",
                     [xp, player.userId]
                 )
             );

@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const socketio = require('socket.io');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -13,8 +14,15 @@ const DBManager = require('./src/db');
 const lobbyManager = new LobbyManager();
 const dbManager = new DBManager();
 
-// Serve static files
+// Webapp beállítások
+app.use(cors({
+    origin: "http://localhost:5173", // React port
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}))
 app.use(express.static('public'));
+app.use(express.json());
+
 
 // Create HTTP server
 const server = app.listen(PORT, () => {
@@ -62,7 +70,8 @@ io.on('connection', (socket) => {
     console.log('New client connected: ', socket.id, "; \nsessionId: ", socket.sessionId);
 
     socket.on('lobby:create', ({ name }) => {
-        const lobby = lobbyManager.createLobby(socket, name);
+        console.log(socket.user);
+        const lobby = lobbyManager.createLobby(socket, name, dbManager);
 
         console.log(lobby);
 
@@ -218,8 +227,7 @@ io.on('connection', (socket) => {
 });
 
 
-app.use(express.json());
-
+/* API VÉGPONTOK */
 // REGISTRATION API
 app.post("/api/register", async (req, res) => {
     const { email, password, username } = req.body;
@@ -232,7 +240,7 @@ app.post("/api/register", async (req, res) => {
 
     try {
         const result = await dbManager.query(
-            "INSERT INTO users (email, password, username) VALUES ($1,$2,$3) RETURNING id",
+            "INSERT INTO users (email, password_hash, username) VALUES ($1,$2,$3) RETURNING user_id",
             [email, hashed, username]
         );
 
@@ -241,6 +249,7 @@ app.post("/api/register", async (req, res) => {
         });
 
     } catch (err) {
+        console.log(err);
         res.status(400).json({
             message: "User already exists"
         });
@@ -251,20 +260,24 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        return res.status(400).json({ message: "Missing fields" });
+    }
+    
     const user = await dbManager.getUserByEmail(email);
 
     if (!user) {
         return res.status(401).json({ message: "No user" });
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password_hash);
 
     if (!valid) {
         return res.status(401).json({ message: "Wrong password" });
     }
 
     const token = jwt.sign(
-        { userId: user.id },
+        { userId: user.user_id },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
     );
@@ -272,7 +285,7 @@ app.post("/api/login", async (req, res) => {
     res.json({
         token,
         user: {
-            id: user.id,
+            id: user.user_id,
             email: user.email,
             username: user.username
         }
@@ -291,7 +304,7 @@ app.get("/api/me", async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await dbManager.query(
-            "SELECT id, email, username FROM users WHERE id = $1",
+            "SELECT user_id, email, username FROM users WHERE user_id = $1",
             [decoded.userId]
         );
 

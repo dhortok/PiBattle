@@ -1,8 +1,9 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { connectSocket } from "../socket";
 
-export default function Login() {
+export default function Login({onBack}) {
     const { login } = useAuth();
 
     const [email, setEmail] = useState("");
@@ -49,6 +50,9 @@ export default function Login() {
 
             <button onClick={handleLogin}>
                 Login
+            </button>
+            <button onClick={onBack}>
+                Home
             </button>
         </div>
     );

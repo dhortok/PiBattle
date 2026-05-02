@@ -1,7 +1,8 @@
 const Game = require("./game");
 
 class Lobby {
-    constructor(id, host) {
+    constructor(id, host, dbManager) {
+        this.dbManager = dbManager;
         this.id = id;
         this.host = host;
         this.players = new Map();
@@ -72,10 +73,10 @@ class LobbyManager {
         this.lobbies = new Map();
     }
 
-    createLobby(socket, name) {
+    createLobby(socket, name, dbManager) {
         const id = this.generateLobbyId();
 
-        const lobby = new Lobby(id, socket.id);
+        const lobby = new Lobby(id, socket.id, dbManager);
         lobby.addPlayer(socket, name);
 
         this.lobbies.set(id, lobby);
