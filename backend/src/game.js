@@ -170,6 +170,10 @@ class Game {
             };
        }
 
+       if (this.lobby.type === "ranked") {
+            this.saveRank();
+        }
+
         io.to(this.lobby.id).emit("game:end", scoresWithNames);
     }
 
@@ -208,6 +212,42 @@ class Game {
         }
 
         Promise.all(queries).catch(console.error);
+    }
+
+    async saveRank() {
+        // Sorrendbe állítjuk a játékosokat a meccsen elért pontjaik (score) alapján
+        const sortedScores = Object.entries(this.scores).sort((a, b) => b[1] - a[1]);
+        
+        // A legelső a győztes kulcsa (userId vagy sessionId)
+        const winnerKey = sortedScores[0][0];
+
+        const queries = [];
+
+        for (const player of this.lobby.players.values()) {
+            if (!player.userId) continue; // Csak regisztrált felhasználó kap rangot
+
+            const key = this.getPlayerKey(player);
+            const isWinner = (key === winnerKey);
+            
+            // TESZT
+            const pointChange = isWinner ? 25 : -5; 
+
+            queries.push(
+                this.lobby.dbManager.query(
+                    `UPDATE users 
+                     SET rank_points = GREATEST(0, rank_points + $1) 
+                     WHERE user_id = $2`,
+                    [pointChange, player.userId]
+                )
+            );
+        }
+
+        try {
+            await Promise.all(queries);
+            console.log(`Rank updated for RankedLobby: ${this.lobby.id}`);
+        } catch (err) {
+            console.error("Hiba a rank mentésekor: ", err);
+        }
     }
     
 }

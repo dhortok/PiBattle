@@ -28,6 +28,14 @@ class DBManager {
         );
         return res.rows[0];
     }
+
+    async getRankById(user_id) {
+        const res = await this.query(
+            "SELECT rang FROM users WHERE user_id = $1",
+            [user_id]
+        );
+        return res.rows[0];
+    }
 }
 
 module.exports = DBManager;

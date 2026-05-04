@@ -210,6 +210,36 @@ io.on('connection', (socket) => {
     
     });
 
+    // Keresés indítása a Ranked rendszerben
+    socket.on('ranked:join', async () => {
+        // Csak bejelentkezett felhasználók játszhatnak rankedet
+        if (!socket.user) {
+            return socket.emit("lobby:error", "Be kell jelentkezned a Ranked játékhoz!");
+        }
+
+        try {
+            const lobby = await lobbyManager.joinRanked(socket, dbManager, io);
+
+            if (lobby) {
+                socket.emit("lobby:joined", lobby.id);
+                io.to(lobby.id).emit('lobby:update', {
+                    players: lobby.getPlayerList(),
+                    host: null // Ranked esetén nincs host
+                });
+            } else {
+                socket.emit("lobby:error", "Hiba történt a meccskeresés során.");
+            }
+        } catch (err) {
+            console.error(err);
+            socket.emit("lobby:error", "Szerverhiba a matchmaking alatt.");
+        }
+    });
+
+    socket.on('ranked:leave', () => {
+        lobbyManager.leaveLobby(socket);
+        socket.emit('lobby:left');
+    });
+
     // Handle client disconnection
     socket.on('disconnect', () => {
         

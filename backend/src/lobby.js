@@ -1,14 +1,14 @@
 const Game = require("./game");
+const { v4: uuidv4 } = require("uuid");
 
+// Általános lobby osztály
 class Lobby {
-    constructor(id, host, dbManager) {
+    constructor(dbManager) {
+        this.type = null;
         this.dbManager = dbManager;
-        this.id = id;
-        this.host = host;
         this.players = new Map();
         this.state = "waiting" // State: waiting, ingame
         this.game = null;
-        this.guest = 1;
         this.settings = {
             maxPlayer: 5, // max játékosok száma
             rounds: 5, // körök száma
@@ -37,11 +37,6 @@ class Lobby {
 
     removePlayer(socket){
         this.players.delete(socket.id);
-
-        if (this.host === socket.id) {
-            const next = this.players.keys().next().value;
-            this.host = next || null;
-        }
     }
 
     getPlayerList() {
@@ -68,15 +63,54 @@ class Lobby {
 }
 
 
+// A "BARÁTI" MÉRKŐZÉSEK LOBBYJA
+class GeneralLobby extends Lobby {
+    constructor(id, host, dbManager) {
+        super(dbManager);
+        this.type = "general";
+        this.id = id;
+        this.host = host;
+        this.guest = 1;
+    }
+
+
+    removePlayer(socket) {
+        super.removePlayer(socket);
+
+        if (this.host === socket.id) {
+            const next = this.players.keys().next().value;
+            this.host = next || null;
+        }
+    }
+}
+
+
+// A RANGOS MÉRKŐZÉSEK LOBBYJA
+class RankedLobby extends Lobby {
+    constructor(dbManager) {
+        super(dbManager);
+        this.type = "ranked";
+        this.rankNum = 0;
+        this.settings = {
+            maxPlayer: 2, // max játékosok száma
+            rounds: 10, // körök száma
+            maxQuestionTime: 15000, // max idő a kérdésre (ms)
+        }
+    }
+}
+
+
+
 class LobbyManager {
     constructor() {
         this.lobbies = new Map();
+        this.ranked = new Map();
     }
 
     createLobby(socket, name, dbManager) {
         const id = this.generateLobbyId();
 
-        const lobby = new Lobby(id, socket.id, dbManager);
+        const lobby = new GeneralLobby(id, socket.id, dbManager);
         lobby.addPlayer(socket, name);
 
         this.lobbies.set(id, lobby);
@@ -98,21 +132,28 @@ class LobbyManager {
         return lobby;
     }
 
-    leaveLobby(socket){
+    leaveLobby(socket) {
+        // Keresés a sima lobbyk között
         for (const lobby of this.lobbies.values()) {
-
             if (lobby.players.has(socket.id)) {
-
                 lobby.removePlayer(socket);
-
-                if (lobby.players.size === 0) {
-                    this.lobbies.delete(lobby.id);
-                }
-
+                if (lobby.players.size === 0) this.lobbies.delete(lobby.id);
                 return lobby;
             }
         }
-
+        
+        // Keresés a ranked lobbyk között
+        for (const lobby of this.ranked.values()) {
+            if (lobby.players.has(socket.id)) {
+                lobby.removePlayer(socket);
+                
+                // Most egyelőre csak töröljük a lobbyt, ha kiürül.
+                if (lobby.players.size === 0 || lobby.state === "waiting") {
+                    this.ranked.delete(lobby.id);
+                }
+                return lobby;
+            }
+        }
         return null;
     }
 
@@ -134,6 +175,49 @@ class LobbyManager {
         if (settings.maxQuestionTime < 10000 || settings.maxQuestionTime > 60000) return false;
         return true;
     }
+
+    async joinRanked(socket, dbManager, io) {
+        if (!socket.user) return false; // Csak bejelentkezett felhasználók
+
+        const userRank = await dbManager.getRankById(socket.user.userId);
+        if (userRank === null || userRank === undefined) return false;
+
+        let matchFound = null;
+        for (const lobby of this.ranked.values()) {
+            if (lobby.state === "waiting" && lobby.players.size < lobby.settings.maxPlayer) {
+                if((lobby.averageRank - userRank) < 100) {
+                    matchFound = lobby;
+                    break;
+                }
+            }
+        }
+
+        if (!matchFound) {
+            const id = uuidv4();
+            matchFound = new RankedLobby(dbManager);
+            matchFound.id = id; 
+            this.ranked.set(id, matchFound);
+        }
+
+        matchFound.addPlayer(socket, socket.user.username);
+        socket.join(matchFound.id);
+
+        if (matchFound.players.size === matchFound.settings.maxPlayer) {
+            matchFound.state = "starting"; // Ne léphessen be más
+            
+            setTimeout(() => {
+                io.to(matchFound.id).emit("game:start");
+                
+                setTimeout(() => {
+                    matchFound.startGame(io);
+                }, 3000); // 3 másodperc múlva ténylegesen elindul a Game osztály
+                
+            }, 500);
+        }
+
+        return matchFound;
+    }
+
 }
 
 module.exports = LobbyManager;
