@@ -30,6 +30,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
 
     useEffect(() => {
         const handleQuestion = (data) => {
+            console.log("KÉRDÉS ÉRKEZETT:", data); // Nézd meg, mi van benne!
             setGameState("question");
             setQuestion(data.question);
             setAnswers(data.answers);
@@ -93,12 +94,11 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             {gameState === "question" && (
                 <>
                     <h2>{question}</h2>
-                    {answers.map((a, i) => {
+                    {answers?.map((a, i) => {
                         let bg = "#fff";
                         if (selected === i) bg = "#ccc";
                         return (
-                            <button key={i} onClick={() => sendAnswer(i)} disabled={timeLeft <= 0 || selected !== null}
-                                style={{ display: "block", margin: "10px 0", padding: "12px", width: "100%", background: bg, border: "1px solid #ddd", borderRadius: 8, cursor: "pointer" }}>
+                            <button key={i} onClick={() => sendAnswer(i)}>
                                 {a}
                             </button>
                         );

@@ -3,7 +3,8 @@ const { v4: uuidv4 } = require("uuid");
 
 // Általános lobby osztály
 class Lobby {
-    constructor(dbManager) {
+    constructor(id, dbManager) {
+        this.id = id;
         this.type = null;
         this.dbManager = dbManager;
         this.players = new Map();
@@ -66,9 +67,8 @@ class Lobby {
 // A "BARÁTI" MÉRKŐZÉSEK LOBBYJA
 class GeneralLobby extends Lobby {
     constructor(id, host, dbManager) {
-        super(dbManager);
+        super(id, dbManager);
         this.type = "general";
-        this.id = id;
         this.host = host;
         this.guest = 1;
     }
@@ -87,11 +87,12 @@ class GeneralLobby extends Lobby {
 
 // A RANGOS MÉRKŐZÉSEK LOBBYJA
 class RankedLobby extends Lobby {
-    constructor(dbManager) {
-        super(dbManager);
+    constructor(id, dbManager) {
+        super(id, dbManager);
         this.type = "ranked";
         this.rankNum = 0;
         this.settings = {
+            ...this.settings,
             maxPlayer: 2, // max játékosok száma
             rounds: 10, // körök száma
             maxQuestionTime: 15000, // max idő a kérdésre (ms)
@@ -182,27 +183,33 @@ class LobbyManager {
         const userRank = await dbManager.getRankById(socket.user.userId);
         if (userRank === null || userRank === undefined) return false;
 
+        console.log(userRank);
+
         let matchFound = null;
         for (const lobby of this.ranked.values()) {
             if (lobby.state === "waiting" && lobby.players.size < lobby.settings.maxPlayer) {
-                if((lobby.averageRank - userRank) < 100) {
+                if((lobby.rankNum - userRank.rang) < 100) {
                     matchFound = lobby;
                     break;
                 }
             }
         }
+        
+        console.log(matchFound);
 
         if (!matchFound) {
             const id = uuidv4();
-            matchFound = new RankedLobby(dbManager);
-            matchFound.id = id; 
+            matchFound = new RankedLobby(id, dbManager);
+            matchFound.rankNum = userRank.rang;
             this.ranked.set(id, matchFound);
         }
 
         matchFound.addPlayer(socket, socket.user.username);
         socket.join(matchFound.id);
 
+        /*
         if (matchFound.players.size === matchFound.settings.maxPlayer) {
+            console.log("Game is starting!");
             matchFound.state = "starting"; // Ne léphessen be más
             
             setTimeout(() => {
@@ -210,10 +217,11 @@ class LobbyManager {
                 
                 setTimeout(() => {
                     matchFound.startGame(io);
-                }, 3000); // 3 másodperc múlva ténylegesen elindul a Game osztály
+                }, 4000); // 3 másodperc múlva ténylegesen elindul a Game osztály
                 
-            }, 500);
+            }, 1000);
         }
+        */
 
         return matchFound;
     }

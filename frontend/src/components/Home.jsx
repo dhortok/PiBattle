@@ -8,6 +8,7 @@ export default function Home({ setLobbyId }) {
 
     const [input, setInput] = useState("");
     const [name, setName] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const createLobby = () => {
         socket.emit("lobby:create", { name });
@@ -20,20 +21,43 @@ export default function Home({ setLobbyId }) {
         });
     };
 
+    const handleRankedJoin = () => {
+        if (!user) {
+            alert("Be kell jelentkezned a Ranked módhoz!");
+            return;
+        }
+        setLoading(true);
+        // A szerver oldalon a 'ranked:join' esemény hívja meg a joinRanked függvényt
+        socket.emit("ranked:join");
+    };
+
     return (
         <div>
-            <h1>Lobby</h1>
+            <h1>Home screen</h1>
+
+            <h2>Ranked mód</h2>
+            <p>Mérkőzz meg hasonló tudású játékosokkal!</p>
+            <button 
+                    onClick={handleRankedJoin}
+                    disabled={loading}
+                    >
+                    {loading ? "Keresés..." : "Játék keresése"}
+            </button>
+            
+            <hr />
+            
+            <h2>Privát szoba</h2>
 
             {!user && (
                 <input
-                    placeholder="Your name"
+                    placeholder="Adj meg ideiglenes nevet"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                 />
             )}
 
             <button onClick={createLobby}>
-                Create Lobby
+                Szoba létrehozása
             </button>
 
             <div>
@@ -44,7 +68,7 @@ export default function Home({ setLobbyId }) {
                 />
 
                 <button onClick={joinLobby}>
-                    Join Lobby
+                    Csatlakozás a szobához
                 </button>
             </div>
         </div>

@@ -77,7 +77,13 @@ io.on('connection', (socket) => {
 
         socket.join(lobby.id);
         socket.emit("lobby:created", lobby.id);
-        io.to(lobby.id).emit('lobby:update', {players: lobby.getPlayerList(), host: lobby.host});
+
+        setTimeout(() => {
+            io.to(lobby.id).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host
+            });
+        }, 500);
 
         console.log(`Created lobby with code: ${lobby.id}`);
     });
@@ -96,7 +102,13 @@ io.on('connection', (socket) => {
 
         socket.join(lobbyCode);
         socket.emit("lobby:joined", lobby.id);
-        io.to(lobby.id).emit('lobby:update', {players: lobby.getPlayerList(), host: lobby.host});
+
+        setTimeout(() => {
+            io.to(lobbyCode).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host
+            });
+        }, 500);
 
         console.log(`Joined lobby with code: ${lobbyCode}`);
     });
@@ -132,10 +144,12 @@ io.on('connection', (socket) => {
 
         socket.emit("lobby:left");
     
-        io.to(lobbyId).emit("lobby:update", {
-            players: lobby.getPlayerList(),
-            host: lobby.host
-        });
+        setTimeout(() => {
+            io.to(lobbyId).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host
+            });
+        }, 500);
 
     });
 
@@ -150,10 +164,12 @@ io.on('connection', (socket) => {
     
         player.ready = !player.ready;
     
-        io.to(lobbyId).emit("lobby:update", {
-            players: lobby.getPlayerList(),
-            host: lobby.host
-        });
+        setTimeout(() => {
+            io.to(lobbyId).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host
+            });
+        }, 500);
     });
 
 
@@ -202,12 +218,14 @@ io.on('connection', (socket) => {
         socket.join(lobbyId);
     
         socket.emit("lobby:joined", lobbyId);
-    
-        io.to(lobbyId).emit("lobby:update", {
-            players: lobby.getPlayerList(),
-            host: lobby.host
-        });
-    
+
+        setTimeout(() => {
+            io.to(lobbyId).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host
+            });
+        }, 500);
+   
     });
 
     // Keresés indítása a Ranked rendszerben
@@ -224,8 +242,21 @@ io.on('connection', (socket) => {
                 socket.emit("lobby:joined", lobby.id);
                 io.to(lobby.id).emit('lobby:update', {
                     players: lobby.getPlayerList(),
-                    host: null // Ranked esetén nincs host
+                    host: null, // Ranked esetén nincs host
+                    isRanked: true
                 });
+
+                if (lobby.players.size === lobby.settings.maxPlayer) {
+                    io.to(lobby.id).emit("rank:ready");
+
+                    setTimeout(() => {
+                        io.to(lobby.id).emit("game:start");
+    
+                        setTimeout(() => {
+                            lobby.startGame(io);
+                        }, 500);
+                    }, 10000);
+                }
             } else {
                 socket.emit("lobby:error", "Hiba történt a meccskeresés során.");
             }

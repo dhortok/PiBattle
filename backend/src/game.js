@@ -230,12 +230,12 @@ class Game {
             const isWinner = (key === winnerKey);
             
             // TESZT
-            const pointChange = isWinner ? 25 : -5; 
+            const pointChange = isWinner ? 25 : -10; 
 
             queries.push(
                 this.lobby.dbManager.query(
                     `UPDATE users 
-                     SET rank_points = GREATEST(0, rank_points + $1) 
+                     SET rang = GREATEST(0, rang + $1) 
                      WHERE user_id = $2`,
                     [pointChange, player.userId]
                 )
