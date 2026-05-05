@@ -79,30 +79,43 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
     };
 
     return (
-        <div style={{ padding: 20, maxWidth: 500, margin: "auto" }}>
+        <div className="container">
             {gameState === "question" && (
-                <div style={{ height: 10, background: "#eee", marginBottom: 20, borderRadius: 5, overflow: "hidden" }}>
-                    <div style={{
-                        height: "100%",
-                        width: `${progress}%`,
-                        background: progress > 50 ? "#4caf50" : progress > 20 ? "#ff9800" : "#f44336",
-                        transition: "width 0.1s linear"
-                    }} />
+                <div className="progress-container">
+                    <div 
+                        className="progress-bar"
+                        style={{ 
+                            width: `${progress}%`,
+                            backgroundColor: progress > 50 ? 'var(--color-success)' : progress > 20 ? 'var(--color-warning)' : 'var(--color-danger)'
+                        }} 
+                    />
                 </div>
             )}
 
             {gameState === "question" && (
                 <>
-                    <h2>{question}</h2>
-                    {answers?.map((a, i) => {
-                        let bg = "#fff";
-                        if (selected === i) bg = "#ccc";
-                        return (
-                            <button key={i} onClick={() => sendAnswer(i)}>
-                                {a}
-                            </button>
-                        );
-                    })}
+                    <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{question}</h2>
+                    <div className="answers-grid">
+                        {answers.map((a, i) => {
+                            let btnClass = "answer-btn";
+                            if (selected === i) btnClass += " answer-selected";
+                            if (gameState === "result") {
+                                if (i === correct) btnClass += " answer-correct";
+                                else if (selected === i) btnClass += " answer-wrong";
+                            }
+
+                            return (
+                                <button
+                                    key={i}
+                                    className={btnClass}
+                                    onClick={() => sendAnswer(i)}
+                                    disabled={timeLeft <= 0 || selected !== null}
+                                >
+                                    {a}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </>
             )}
 
@@ -128,8 +141,8 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
                         ))}
                     </ul>
                     <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                        <button onClick={leaveLobby} style={{ background: "red", color: "white" }}>Kilépés a szobából</button>
-                        <button onClick={returnLobby} style={{ background: "blue", color: "white" }}>Vissza a váróba</button>
+                        <button className="btn" onClick={leaveLobby} style={{ background: "red", color: "white" }}>Kilépés a szobából</button>
+                        <button className="btn" onClick={returnLobby} style={{ background: "blue", color: "white" }}>Vissza a váróba</button>
                     </div>
                 </>
             )}

@@ -58,11 +58,11 @@ function App() {
 
     return (
         <div>
-            <div style={{ padding: 10, borderBottom: "1px solid #ddd" }}>
+            <div header>
                 {user ? (
                     <>
                         <b>USER:</b> {user.username}
-                        <button onClick={() => { 
+                        <button className="btn" onClick={() => { 
                             logout(); 
                             socket.disconnect(); 
                         }}>
@@ -71,10 +71,10 @@ function App() {
                     </>
                 ) : (
                     <>
-                        <button onClick={() => setAuthMode("login")}>
+                        <button className="btn" onClick={() => setAuthMode("login")}>
                             Login
                         </button>
-                        <button onClick={() => setAuthMode("register")}>
+                        <button className="btn" onClick={() => setAuthMode("register")}>
                             Register
                         </button>
                         <span style={{ marginLeft: 10 }}>

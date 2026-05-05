@@ -32,12 +32,12 @@ export default function Home({ setLobbyId }) {
     };
 
     return (
-        <div>
+        <div className="container">
             <h1>Home screen</h1>
 
             <h2>Ranked mód</h2>
             <p>Mérkőzz meg hasonló tudású játékosokkal!</p>
-            <button 
+            <button className="btn"
                     onClick={handleRankedJoin}
                     disabled={loading}
                     >
@@ -49,25 +49,25 @@ export default function Home({ setLobbyId }) {
             <h2>Privát szoba</h2>
 
             {!user && (
-                <input
+                <input type="text"
                     placeholder="Adj meg ideiglenes nevet"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                 />
             )}
 
-            <button onClick={createLobby}>
+            <button className="btn" onClick={createLobby}>
                 Szoba létrehozása
             </button>
 
             <div>
-                <input
+                <input type="text"
                     placeholder="Lobby ID"
                     value={input}
                     onChange={(e) => setInput(e.target.value.toUpperCase())}
                 />
 
-                <button onClick={joinLobby}>
+                <button className="btn" onClick={joinLobby}>
                     Csatlakozás a szobához
                 </button>
             </div>

@@ -43,7 +43,7 @@ export default function Lobby({ lobbyId }) {
     const handleGameEnd = () => setGameStarted(false);
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="container">
             {gameStarted ? (
                 <QuizGame lobbyId={lobbyId} onReturnToLobby={handleGameEnd} />
             ) : (
@@ -55,22 +55,22 @@ export default function Lobby({ lobbyId }) {
                     )}
 
                     {socket.id === host && (
-                        <div style={{ border: "1px solid #ccc", padding: 10, marginBottom: 20 }}>
+                        <div className="card">
                             <h3>Game Settings</h3>
                             <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
-                                <label>Max Players: {settings.maxPlayer}</label>
+                                <label className="lobbysettings">Max Players: {settings.maxPlayer}</label>
                                 <input type="range" value={settings.maxPlayer} min="2" max="100"
                                     onChange={e => setSettings({ ...settings, maxPlayer: Number(e.target.value) })} />
 
-                                <label>Rounds: {settings.rounds}</label>
+                                <label className="lobbysettings">Rounds: {settings.rounds}</label>
                                 <input type="range" value={settings.rounds} min="3" max="20"
                                     onChange={e => setSettings({ ...settings, rounds: Number(e.target.value) })} />
 
-                                <label>Time (ms):</label>
+                                <label className="lobbysettings">Time (ms):</label>
                                 <input type="number" value={settings.maxQuestionTime}
                                     onChange={e => setSettings({ ...settings, maxQuestionTime: Number(e.target.value) })} />
 
-                                <button onClick={() => socket.emit("lobby:updateSettings", { lobbyId, settings })}>
+                                <button className="btn" onClick={() => socket.emit("lobby:updateSettings", { lobbyId, settings })}>
                                     Apply Settings
                                 </button>
                             </div>
@@ -88,11 +88,11 @@ export default function Lobby({ lobbyId }) {
 
                     <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                         {!isRanked && (
-                            <button onClick={() => socket.emit("player:ready", lobbyId)}>Toggle Ready</button>
+                            <button className="btn" onClick={() => socket.emit("player:ready", lobbyId)}>Toggle Ready</button>
                         )}                        
                         <button onClick={leaveLobby} style={{ background: "red", color: "white" }}>Leave lobby</button>
                         {socket.id === host && (
-                            <button onClick={startGame} style={{ background: "green", color: "white" }}>Start Game</button>
+                            <button className="btn" onClick={startGame} style={{ background: "green", color: "white" }}>Start Game</button>
                         )}
                     </div>
 
