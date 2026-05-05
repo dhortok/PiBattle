@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
 
-export default function QuizGame({ lobbyId }) {
-
+export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [gameState, setGameState] = useState("waiting");
     const [question, setQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
@@ -13,7 +12,6 @@ export default function QuizGame({ lobbyId }) {
     const [timeLeft, setTimeLeft] = useState(0);
     const [maxTime, setMaxTime] = useState(10000);
 
-    // TIMER
     useEffect(() => {
         if (gameState !== "question") return;
 
@@ -28,135 +26,79 @@ export default function QuizGame({ lobbyId }) {
         }, 100);
 
         return () => clearInterval(interval);
-
     }, [gameState]);
 
-    // SOCKET EVENTS
     useEffect(() => {
-
-        socket.on("game:question", (data) => {
-            console.log("DATA: ", data);
-
+        const handleQuestion = (data) => {
             setGameState("question");
             setQuestion(data.question);
             setAnswers(data.answers);
             setSelected(null);
             setCorrect(null);
-
-            console.log(data.time);
-
             setMaxTime(data.maxTime);
             setTimeLeft(data.maxTime);
-        });
+        };
 
-        socket.on("game:result", (data) => {
+        const handleResult = (data) => {
             setGameState("result");
             setCorrect(data.correct);
             setScores(data.scores);
-        });
-
-        socket.on("game:end", (data) => {
-            console.log("GAME END DATA:", data);
-        
-            setGameState("end");
-            setScores(data || {});
-        });
-
-        return () => {
-            socket.off("game:question");
-            socket.off("game:result");
-            socket.off("game:end");
         };
 
+        const handleEnd = (data) => {
+            setGameState("end");
+            setScores(data || {});
+        };
+
+        socket.on("game:question", handleQuestion);
+        socket.on("game:result", handleResult);
+        socket.on("game:end", handleEnd);
+
+        return () => {
+            socket.off("game:question", handleQuestion);
+            socket.off("game:result", handleResult);
+            socket.off("game:end", handleEnd);
+        };
     }, []);
 
     const sendAnswer = (index) => {
-        if (selected !== null) return;
-        if (timeLeft <= 0) return;
-
+        if (selected !== null || timeLeft <= 0) return;
         setSelected(index);
-
-        socket.emit("game:answer", {
-            lobbyId,
-            answer: index
-        });
+        socket.emit("game:answer", { lobbyId, answer: index });
     };
 
-    // PROGRESS %
-    const progress = (timeLeft / maxTime) * 100;
-    console.log({ timeLeft, maxTime, progress });
+    const progress = Math.max(0, (timeLeft / maxTime) * 100);
+    const sortedScores = Object.entries(scores).sort((a, b) => b[1].score - a[1].score);
 
-    // SCORE RENDEZÉS
-    const sortedScores = Object.entries(scores)
-        .sort((a, b) => b[1].score - a[1].score);
-
-    const leaveLobby = () => {
-        socket.emit("lobby:leave");
-    };
+    const leaveLobby = () => socket.emit("lobby:leave");
     
+    // JAVÍTVA: Üres socket.emit helyett a Lobby komponens értesítése
     const returnLobby = () => {
-        socket.emit();
-    }
+        if (onReturnToLobby) onReturnToLobby();
+    };
 
     return (
         <div style={{ padding: 20, maxWidth: 500, margin: "auto" }}>
-
-            {/* PROGRESS BAR */}
             {gameState === "question" && (
-                <div style={{
-                    height: 10,
-                    background: "#eee",
-                    marginBottom: 20,
-                    borderRadius: 5,
-                    overflow: "hidden"
-                }}>
+                <div style={{ height: 10, background: "#eee", marginBottom: 20, borderRadius: 5, overflow: "hidden" }}>
                     <div style={{
                         height: "100%",
                         width: `${progress}%`,
-                        background: progress > 50
-                            ? "#4caf50"
-                            : progress > 20
-                                ? "#ff9800"
-                                : "#f44336",
+                        background: progress > 50 ? "#4caf50" : progress > 20 ? "#ff9800" : "#f44336",
                         transition: "width 0.1s linear"
                     }} />
                 </div>
             )}
 
-            {/* KÉRDÉS */}
             {gameState === "question" && (
                 <>
                     <h2>{question}</h2>
-
                     {answers.map((a, i) => {
-
                         let bg = "#fff";
-
                         if (selected === i) bg = "#ccc";
-
-                        if (gameState === "result") {
-                            if (i === correct) bg = "#4caf50";
-                            else if (selected === i) bg = "#f44336";
-                        }
-
                         return (
-                            <button
-                                key={i}
-                                onClick={() => sendAnswer(i)}
-                                disabled={timeLeft <= 0 || selected !== null}
-                                style={{
-                                    display: "block",
-                                    margin: "10px 0",
-                                    padding: "12px",
-                                    width: "100%",
-                                    background: bg,
-                                    color: "#000",
-                                    border: "1px solid #ddd",
-                                    borderRadius: 8,
-                                    cursor: "pointer",
-                                    transition: "0.2s"
-                                }}
-                            >
+                            <button key={i} onClick={() => sendAnswer(i)} disabled={timeLeft <= 0 || selected !== null}
+                                style={{ display: "block", margin: "10px 0", padding: "12px", width: "100%", background: bg, border: "1px solid #ddd", borderRadius: 8, cursor: "pointer" }}>
                                 {a}
                             </button>
                         );
@@ -164,41 +106,33 @@ export default function QuizGame({ lobbyId }) {
                 </>
             )}
 
-            {/* RESULT */}
             {gameState === "result" && (
                 <>
-                    <h2>Correct: {answers[correct]}</h2>
-
-                    <h3>Leaderboard:</h3>
+                    <h2>Helyes válasz: {answers[correct]}</h2>
+                    <h3>Ranglista:</h3>
                     <ul>
-                    {sortedScores.map(([id, data], index) => (
-                        <li key={id}>
-                            #{index + 1} — {data.name}: {data.score}
-                        </li>
-                    ))}
+                        {sortedScores.map(([id, data], index) => (
+                            <li key={id}>#{index + 1} — {data.name}: {data.score}</li>
+                        ))}
                     </ul>
                 </>
             )}
 
-            {/* END */}
             {gameState === "end" && (
                 <>
                     <h2>🏆 Game Over</h2>
-
-                    <h3>Final Ranking:</h3>
+                    <h3>Végeredmény:</h3>
                     <ul>
                         {sortedScores.map(([id, data], index) => (
-                            <li key={id}>
-                                #{index + 1} — {data.name}: {data.score} ({data.xp})
-                            </li>
+                            <li key={id}>#{index + 1} — {data.name}: {data.score} (XP: +{data.xp})</li>
                         ))}
                     </ul>
-
-                    <button onClick={leaveLobby}>Leave lobby</button>
-                    <button onClick={returnLobby}>Return to lobby</button>
+                    <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+                        <button onClick={leaveLobby} style={{ background: "red", color: "white" }}>Kilépés a szobából</button>
+                        <button onClick={returnLobby} style={{ background: "blue", color: "white" }}>Vissza a váróba</button>
+                    </div>
                 </>
             )}
-
         </div>
     );
 }
