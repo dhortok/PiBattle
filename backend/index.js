@@ -350,7 +350,8 @@ app.post("/api/login", async (req, res) => {
         user: {
             id: user.user_id,
             email: user.email,
-            username: user.username
+            username: user.username,
+            xp: user.xp
         }
     });
 });
@@ -367,7 +368,7 @@ app.get("/api/me", async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await dbManager.query(
-            "SELECT user_id, email, username FROM users WHERE user_id = $1",
+            "SELECT user_id, email, username, xp FROM users WHERE user_id = $1",
             [decoded.userId]
         );
 

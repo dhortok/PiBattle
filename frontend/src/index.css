@@ -172,6 +172,88 @@ h1, h2, h3, h4, p {
   margin-left: 10px;
 }
 
+/* Auth konténer a navigációs sávban */
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Felhasználói profil blokk elrendezése */
+.user-profile-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+/* Felső sor: Név és Szint */
+.user-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+/* Szint jelvény (Badge) */
+.level-badge {
+    background-color: #ffd700;
+    color: #121824; /* Sötét kék/szürke háttérhez igazítva */
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    letter-spacing: 0.5px;
+}
+
+/* XP Sáv és szöveg csoportosítása */
+.xp-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Progress Bar háttér */
+.xp-bar-bg {
+    width: 130px;
+    height: 8px;
+    background-color: #1e2640; /* Mélyebb kontrasztos háttér */
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #3b4252;
+}
+
+/* Progress Bar töltőcsík */
+.xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #66bb6a); /* Finom színátmenet a zöldnek */
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Sima, organikusabb animáció */
+}
+
+/* XP számérték */
+.xp-text {
+    color: #8892b0;
+    font-size: 0.75rem;
+    font-family: monospace; /* Monospace-szel a számok nem ugrálnak, ha változik az XP */
+    min-width: 80px;
+    text-align: left;
+}
+
   /* Gombok egységesítése */
   .btn {
     background-color: var(--color-primary);

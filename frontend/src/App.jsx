@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { socket, connectSocket } from "./socket";
+import {xp_to_levels} from "../../common/level"
 import Home from "./components/Home";
 import Lobby from "./components/Lobby";
 import Login from "./pages/Login";
@@ -7,7 +8,7 @@ import Register from "./pages/Register";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
-    const { user } = useAuth();
+    const { user, updateUser, logout } = useAuth();
 
     const [lobbyId, setLobbyId] = useState(null);
     const [authMode, setAuthMode] = useState(null); // null | login | register
@@ -47,6 +48,18 @@ function App() {
         };
     }, []);
 
+    useEffect(() => {
+        socket.on("user:update_xp", (newXp) => {
+            if (user) {
+                updateUser({ xp: newXp }); 
+                console.log("XP frissítve:", newXp);
+            }
+        });
+        return () => {
+            socket.off("user:update_xp");
+        };
+    }, [user, updateUser]);
+
     // AUTH MODUL
     if (authMode === "login") {
         return <Login onBack={() => setAuthMode(null)} />;
@@ -56,14 +69,36 @@ function App() {
         return <Register onBack={() => setAuthMode(null)} />;
     }
 
+    const stats = user ? xp_to_levels(user.xp || 0) : null;
+
     return (
         <div>
             <nav className="navbar">
                 <div className="nav-logo">PiBattle</div>
                 <div className="nav-auth">
                     {user ? (
-                        <div className="user-info">
-                            <span className="username">👤 {user.username}</span>
+                        <div className="user-profile-container">
+                            <div className="user-info-block">
+                                {/* Felső sor: Név és Szint jelvény */}
+                                <div className="user-header-row">
+                                    <span className="username">👤 {user.username}</span>
+                                    <span className="level-badge">Lvl {stats.level}</span>
+                                </div>
+
+                                {/* XP progress bar és szöveg */}
+                                <div className="xp-container">
+                                    <div className="xp-bar-bg">
+                                        <div 
+                                            className="xp-bar-fill" 
+                                            style={{ width: `${stats.progressPercentage}%` }}
+                                        ></div>
+                                    </div>
+                                    <small className="xp-text">
+                                        {stats.xpInCurrentLevel} / {stats.nextLevelAt} XP
+                                    </small>
+                                </div>
+                            </div>
+                            
                             <button className="btn-nav-logout" onClick={() => {
                                 logout();
                                 socket.disconnect();

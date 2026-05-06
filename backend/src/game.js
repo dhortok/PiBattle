@@ -198,6 +198,7 @@ class Game {
         }
 
         io.to(this.lobby.id).emit("game:end", scoresWithNames);
+        socket.emit("user:update_xp", newXpAmount);
     }
 
     // XP számolás
