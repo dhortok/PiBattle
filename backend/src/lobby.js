@@ -18,12 +18,23 @@ class Lobby {
         }
     }
 
-    addPlayer(socket, name) {
+    async addPlayer(socket, name) {
         if (this.players.size >= this.settings.maxPlayer) return false;
+
+        let nickname;
     
-        const nickname = socket.user?.userId
-        ? `User_${socket.user.userId}` // DB LEKÉRDEZÉS KELL IDE!!! (most csak teszt)
-        : name || `Guest${this.guest++}`;
+        if (socket.user?.userId) {
+            try {
+                // Feltételezve, hogy a dbManager-nek van egy aszinkron metódusa
+                const user = await this.dbManager.getUserById(socket.user.userId);
+                nickname = user ? user.username : (name || "Unknown User");
+            } catch (error) {
+                console.error("DB hiba a lobby-ban:", error);
+                nickname = name || "Guest"; // Fallback, ha elszáll a DB
+            }
+        } else {
+            nickname = name || `Guest${Math.floor(Math.random() * 1000)}`;
+        }
     
         this.players.set(socket.id, {
             socketId: socket.id,
@@ -70,7 +81,6 @@ class GeneralLobby extends Lobby {
         super(id, dbManager);
         this.type = "general";
         this.host = host;
-        this.guest = 1;
     }
 
 

@@ -21,6 +21,14 @@ class DBManager {
         return this.pool.query(text, params);
     }
 
+    async getUserById(id) {
+        const res = await this.query(
+            "SELECT * FROM users WHERE user_id = $1",
+            [id]
+        );
+        return res.rows[0];
+    }
+
     async getUserByEmail(email) {
         const res = await this.query(
             "SELECT * FROM users WHERE email = $1",
