@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
                 players: lobby.getPlayerList(),
                 host: lobby.host
             });
-        }, 500);
+        }, 250);
 
         console.log(`Created lobby with code: ${lobby.id}`);
     });
@@ -108,7 +108,7 @@ io.on('connection', (socket) => {
                 players: lobby.getPlayerList(),
                 host: lobby.host
             });
-        }, 500);
+        }, 250);
 
         console.log(`Joined lobby with code: ${lobbyCode}`);
     });
@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
                 players: lobby.getPlayerList(),
                 host: lobby.host
             });
-        }, 500);
+        }, 250);
 
     });
 
@@ -169,7 +169,7 @@ io.on('connection', (socket) => {
                 players: lobby.getPlayerList(),
                 host: lobby.host
             });
-        }, 500);
+        }, 250);
     });
 
 
@@ -186,7 +186,7 @@ io.on('connection', (socket) => {
     
         setTimeout(() => {
             lobby.startGame(io);
-        }, 200);
+        }, 250);
     });
 
     socket.on("game:answer", ({ lobbyId, answer }) => {
@@ -224,7 +224,7 @@ io.on('connection', (socket) => {
                 players: lobby.getPlayerList(),
                 host: lobby.host
             });
-        }, 500);
+        }, 250);
    
     });
 
@@ -240,11 +240,13 @@ io.on('connection', (socket) => {
 
             if (lobby) {
                 socket.emit("lobby:joined", lobby.id);
-                io.to(lobby.id).emit('lobby:update', {
-                    players: lobby.getPlayerList(),
-                    host: null, // Ranked esetén nincs host
-                    isRanked: true
-                });
+                setTimeout(() => {
+                    io.to(lobby.id).emit('lobby:update', {
+                        players: lobby.getPlayerList(),
+                        host: null, // Ranked esetén nincs host
+                        isRanked: true
+                    });
+                }, 250);
 
                 if (lobby.players.size === lobby.settings.maxPlayer) {
                     io.to(lobby.id).emit("rank:ready");
@@ -254,7 +256,7 @@ io.on('connection', (socket) => {
     
                         setTimeout(() => {
                             lobby.startGame(io);
-                        }, 500);
+                        }, 250);
                     }, 10000);
                 }
             } else {

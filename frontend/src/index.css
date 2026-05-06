@@ -364,3 +364,56 @@ h1, h2, h3, h4, p {
     min-height: auto;
   }
 }
+
+.lobby-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 20px;
+}
+
+.lobby-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Két oszlopos elrendezés */
+    gap: 20px;
+    flex: 1;
+}
+
+.lobby-id {
+    cursor: pointer;
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+/* Popup / Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-card {
+    background: var(--color-surface);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Játékos lista színek */
+.status-ready { color: var(--color-success); font-weight: bold; }
+.status-waiting { color: var(--color-warning); }
+.is-host { border-left: 4px solid gold; }
+
+/* Mobilon egymás alá teszi a két kártyát */
+@media (max-width: 768px) {
+    .lobby-content { grid-template-columns: 1fr; overflow-y: auto; }
+}

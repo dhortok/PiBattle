@@ -5,6 +5,7 @@ import { socket } from "../socket";
 export default function Lobby({ lobbyId }) {
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
+    const [showSettings, setShowSettings] = useState(false); // Popup állapota
     const [isRanked, setIsRanked] = useState(false); // Ezt a szervernek küldenie kell az update-ben
     const [isRankReady, setIsRankReady] = useState(false); // Ezt a szervernek küldenie kell az update-ben
     const [gameStarted, setGameStarted] = useState(false);
@@ -16,6 +17,7 @@ export default function Lobby({ lobbyId }) {
 
     useEffect(() => {
         const handleUpdate = (data) => {
+            console.log(data);
             setPlayers(data.players);
             setHost(data.host);
             setIsRanked(data.isRanked || false);
@@ -42,72 +44,102 @@ export default function Lobby({ lobbyId }) {
     // Visszatérés a lobby nézetbe
     const handleGameEnd = () => setGameStarted(false);
 
+    const isHost = socket.id === host;
+
+    // Másolás vágólapra
+    const copyLobbyId = () => {
+        navigator.clipboard.writeText(lobbyId);
+        alert("Lobby ID másolva!");
+    };
+
+    if (gameStarted) return <QuizGame lobbyId={lobbyId} />;
+
     return (
-        <div className="container">
-            {gameStarted ? (
-                <QuizGame lobbyId={lobbyId} onReturnToLobby={handleGameEnd} />
-            ) : (
-                <>
-                    {isRanked ? (
-                        <h2 style={{ color: "#ffd700" }}>🛡️ Ranked Lobby - Ellenfelek keresése...</h2>
-                    ) : (
-                        <h2>Szoba: {lobbyId}</h2>
-                    )}
+        <div className="lobby-container">
+            <div className="lobby-header">
+                {isRanked ? (
+                    <h2 style={{ color: "#ffd700" }}>🛡️ Ranked Lobby - Ellenfelek keresése...</h2>
+                ) : (
+                    <h2>Szoba: <span className="lobby-id" onClick={copyLobbyId} title="Másolás">{lobbyId} 📋</span></h2>
+                )}
+            </div>
 
-                    {socket.id === host && (
-                        <div className="card">
-                            <h3>Game Settings</h3>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "300px" }}>
-                                <label className="lobbysettings">Max Players: {settings.maxPlayer}</label>
-                                <input type="range" value={settings.maxPlayer} min="2" max="100"
-                                    onChange={e => setSettings({ ...settings, maxPlayer: Number(e.target.value) })} />
-
-                                <label className="lobbysettings">Rounds: {settings.rounds}</label>
-                                <input type="range" value={settings.rounds} min="3" max="20"
-                                    onChange={e => setSettings({ ...settings, rounds: Number(e.target.value) })} />
-
-                                <label className="lobbysettings">Time (ms):</label>
-                                <input type="number" value={settings.maxQuestionTime}
-                                    onChange={e => setSettings({ ...settings, maxQuestionTime: Number(e.target.value) })} />
-
-                                <button className="btn" onClick={() => socket.emit("lobby:updateSettings", { lobbyId, settings })}>
-                                    Apply Settings
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    <h3>Players:</h3>
-                    <ul>
+            <div className="lobby-content">
+                {/* BAL OLDAL: Játékosok */}
+                <div className="card players-card">
+                    <h3>👥 Játékosok ({players.length}/{settings.maxPlayer})</h3>
+                    <ul className="player-list">
                         {players.map(p => (
-                            <li key={p.socketId}>
-                                {p.nickname} {p.ready ? " ✅" : " ❌"} {p.socketId === host && " (HOST)"}
+                            <li key={p.socketId} className={p.socketId === host ? "is-host" : ""}>
+                                <span>{p.nickname} {p.socketId === host && "👑"}</span>
+                                {!isRanked && (
+                                    <span className={p.ready ? "status-ready" : "status-waiting"}>
+                                    {p.ready ? " ✅" : " ❌"}
+                                    </span>
+                                )}
                             </li>
                         ))}
                     </ul>
 
-                    <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                        {!isRanked && (
-                            <button className="btn" onClick={() => socket.emit("player:ready", lobbyId)}>Toggle Ready</button>
-                        )}                        
-                        <button onClick={leaveLobby} style={{ background: "red", color: "white" }}>Leave lobby</button>
-                        {socket.id === host && (
-                            <button className="btn" onClick={startGame} style={{ background: "green", color: "white" }}>Start Game</button>
-                        )}
-                    </div>
-
                     {isRanked && (
                         <p style={{ fontStyle: "italic", marginTop: 10 }}>
-                            Várakozás játékosokra
+                            {!isRankReady ? ("Várakozás játékosokra") : ("A lobby megtelt, a játék hamarosan elindul!")}
                         </p>
+                        
                     )}
 
-                    {isRankReady && (
-                        <p style={{ fontStyle: "italic", marginTop: 10 }}>
-                        A lobby megtelt, a játék hamarosan elindul!
-                        </p>
+                    <div className="lobby-actions">
+                        {!isRanked ? (
+                        <button className="btn btn-primary" onClick={() => socket.emit("player:ready", lobbyId)}>Kész vagyok</button>
+                        ) : (null)}
+                        <button className="btn btn-danger" onClick={() => socket.emit("lobby:leave", lobbyId)}>Kilépés</button>
+                    </div>
+                </div>
+
+                {/* JOBB OLDAL: Játékszabályok nézete */}
+                {!isRanked ? (
+                <div className="card settings-view-card">
+                    <h3>⚙️ Játékszabályok</h3>
+                    <div className="settings-info">
+                        <p><strong>Körök száma:</strong> {settings.rounds}</p>
+                        <p><strong>Időkeret:</strong> {settings.maxQuestionTime / 1000} másodperc</p>
+                        <p><strong>Max játékos:</strong> {settings.maxPlayer}</p>
+                    </div>
+                    {isHost && (
+                        <>
+                            <button className="btn btn-outline" onClick={() => setShowSettings(true)}>Beállítások módosítása</button>
+                            <button className="btn btn-success" onClick={() => socket.emit("game:start", lobbyId)}>Játék indítása</button>
+                        </>
                     )}
-                </>
+                </div>) : (null)}
+            </div>
+
+            {/* POPUP MODAL (Csak a Hostnak) */}
+            {showSettings && (
+                <div className="modal-overlay">
+                    <div className="modal-card">
+                        <h3>Játék Beállítások</h3>
+                        <label>Max Játékos: {settings.maxPlayer}</label>
+                        <input type="range" min="2" max="20" value={settings.maxPlayer} 
+                               onChange={e => setSettings({...settings, maxPlayer: Number(e.target.value)})} />
+                        
+                        <label>Körök: {settings.rounds}</label>
+                        <input type="range" min="3" max="20" value={settings.rounds} 
+                               onChange={e => setSettings({...settings, rounds: Number(e.target.value)})} />
+
+                        <label>Idő (ms):</label>
+                        <input type="number" value={settings.maxQuestionTime} 
+                               onChange={e => setSettings({...settings, maxQuestionTime: Number(e.target.value)})} />
+
+                        <div className="modal-actions">
+                            <button className="btn btn-primary" onClick={() => {
+                                socket.emit("lobby:updateSettings", { lobbyId, settings });
+                                setShowSettings(false);
+                            }}>Mentés</button>
+                            <button className="btn btn-outline" onClick={() => setShowSettings(false)}>Mégse</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
