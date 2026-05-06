@@ -12,6 +12,23 @@
     --transition: all 0.2s ease;
   }
   /* Tipográfiai alapok */
+  
+.app-wrapper {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Nincs görgetés */
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+}
+
+.main-content {
+  flex: 1; /* Kitölti a maradék helyet a Navbar alatt */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md);
+}
 
 h1, h2, h3, h4, p {
     margin-top: 0;
@@ -24,6 +41,7 @@ h1, h2, h3, h4, p {
     font-size: 2.5rem;
     font-weight: 800;
     background: linear-gradient(to right, #818cf8, #c084fc);
+    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: var(--spacing-lg);
     text-align: center;
@@ -113,6 +131,47 @@ h1, h2, h3, h4, p {
     margin-bottom: 20px;
   }
   
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-nav {
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-nav:hover { background: var(--color-primary); }
+
+.btn-nav-logout {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
   /* Gombok egységesítése */
   .btn {
     background-color: var(--color-primary);
@@ -212,3 +271,96 @@ h1, h2, h3, h4, p {
     margin-bottom: 5px; 
     font-weight: 500;
   }
+
+  /* A teljes fő tartalom, ami kitölti a Navbar alatti részt */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Függőlegesen középre teszi a tartalmat */
+  width: 100%;
+  max-width: 1000px;
+  height: 100%; /* Kitölti a .main-content-et */
+  gap: var(--spacing-lg);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Fejléc rész a címmel és alcímmel */
+.home-header {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.home-header h1 {
+  margin-bottom: 0.5rem;
+  font-size: 3rem; /* Megnövelt méret, hogy biztosan látványos legyen */
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* A két szekció (Ranked és Privát) elrendezése */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Két oszlop asztali gépen */
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Szekciók belső elrendezése */
+.ranked-section, .private-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* A gombokat az aljára tolja, ha eltérő a szöveghossz */
+  min-height: 250px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Privát szoba beviteli csoportja */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.divider {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  position: relative;
+}
+
+.divider::before, .divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+/* Animáció a belépéshez */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* RESPONSIVE: Mobilon egymás alá teszi a kártyákat, ha nincs elég hely */
+@media (max-width: 768px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    overflow-y: auto; /* Mobilon, ha nagyon kicsi a kijelző, itt engedünk egy pici görgetést */
+    padding-bottom: 20px;
+  }
+  
+  .home-header h1 {
+    font-size: 2rem;
+  }
+  
+  .ranked-section, .private-section {
+    min-height: auto;
+  }
+}

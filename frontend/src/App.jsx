@@ -58,36 +58,32 @@ function App() {
 
     return (
         <div>
-            <div header>
-                {user ? (
-                    <>
-                        <b>USER:</b> {user.username}
-                        <button className="btn" onClick={() => { 
-                            logout(); 
-                            socket.disconnect(); 
-                        }}>
-                            Logout
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <button className="btn" onClick={() => setAuthMode("login")}>
-                            Login
-                        </button>
-                        <button className="btn" onClick={() => setAuthMode("register")}>
-                            Register
-                        </button>
-                        <span style={{ marginLeft: 10 }}>
-                            (Guest mód)
-                        </span>
-                    </>
-                )}
-            </div>
+            <nav className="navbar">
+                <div className="nav-logo">PiBattle</div>
+                <div className="nav-auth">
+                    {user ? (
+                        <div className="user-info">
+                            <span className="username">👤 {user.username}</span>
+                            <button className="btn-nav-logout" onClick={() => {
+                                logout();
+                                socket.disconnect();
+                            }}>Logout</button>
+                        </div>
+                    ) : (
+                        <div className="auth-buttons">
+                            <button className="btn-nav" onClick={() => setAuthMode("login")}>Login</button>
+                            <button className="btn-nav btn-register" onClick={() => setAuthMode("register")}>Register</button>
+                        </div>
+                    )}
+                </div>
+            </nav>
 
+            <main className="main-content">
             {!lobbyId
                 ? <Home setLobbyId={setLobbyId} />
                 : <Lobby lobbyId={lobbyId} />
             }
+            </main>
         </div>
     );
 }

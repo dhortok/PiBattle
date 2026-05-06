@@ -32,45 +32,56 @@ export default function Home({ setLobbyId }) {
     };
 
     return (
-        <div className="container">
-            <h1>Home screen</h1>
+        <div className="home-container">
+            <header className="home-header">
+                <h1>Home Screen</h1>
+                <p>Matek PvP - készen állsz?</p>
+            </header>
 
-            <h2>Ranked mód</h2>
-            <p>Mérkőzz meg hasonló tudású játékosokkal!</p>
-            <button className="btn"
-                    onClick={handleRankedJoin}
-                    disabled={loading}
-                    >
-                    {loading ? "Keresés..." : "Játék keresése"}
-            </button>
-            
-            <hr />
-            
-            <h2>Privát szoba</h2>
-
-            {!user && (
-                <input type="text"
-                    placeholder="Adj meg ideiglenes nevet"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-            )}
-
-            <button className="btn" onClick={createLobby}>
-                Szoba létrehozása
-            </button>
-
-            <div>
-                <input type="text"
-                    placeholder="Lobby ID"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value.toUpperCase())}
-                />
-
-                <button className="btn" onClick={joinLobby}>
-                    Csatlakozás a szobához
+            <div className="home-grid">
+                <section className="card ranked-section">
+                    <h3>🏆 Ranked mód</h3>
+                    <p>Mérkőzz meg hasonló tudású játékosokkal!</p>
+                    <button className="btn btn-primary"
+                        onClick={handleRankedJoin}
+                        disabled={loading}
+                        >
+                        {loading ? "Keresés..." : "Játék keresése"}
                 </button>
+                </section>
+
+                <section className="card private-section">
+                    <h3>🔒 Privát szoba</h3>
+                    <div className="input-group">
+                        {!user && (
+                        <input className="lobby-input" type="text"
+                            placeholder="Adj meg ideiglenes nevet"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        )}
+
+                        <button className="btn btn-secondary" onClick={createLobby}>
+                        Szoba létrehozása
+                        </button>
+
+                        <div className="divider">vagy</div>
+
+                        <input placeholder="Lobby ID" className="lobby-input"  type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value.toUpperCase())}
+                        />
+
+                        <button className="btn btn-outline" onClick={joinLobby}>
+                        Csatlakozás a szobához
+                        </button>
+                    </div>
+                </section>
+
             </div>
+
+
         </div>
+        
     );
 }
