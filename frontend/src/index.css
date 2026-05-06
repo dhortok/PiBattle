@@ -417,3 +417,128 @@ h1, h2, h3, h4, p {
 @media (max-width: 768px) {
     .lobby-content { grid-template-columns: 1fr; overflow-y: auto; }
 }
+
+
+/* Teljes képernyős elrendezés görgetés nélkül */
+.game-layout {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: var(--color-bg);
+}
+
+/* Kérdés nézet */
+.question-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.timer-track {
+    width: 100%;
+    height: 10px;
+    background: #1e293b;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.timer-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--color-primary), #a855f7);
+    transition: width 0.05s linear;
+}
+
+.answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 15px;
+    flex: 1; /* Ez tölti ki a teljes képernyőt */
+    margin-bottom: 20px;
+}
+
+.answer-btn {
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: var(--color-surface);
+    color: white;
+    border-radius: 15px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.answer-btn.selected {
+    background: var(--color-primary);
+    border-color: white;
+}
+
+/* Eredmény nézet */
+.leaderboard-scroll {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 15px;
+    border-radius: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    margin-bottom: 5px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.is-me { border: 1px solid var(--color-primary); background: rgba(99, 102, 241, 0.1); }
+.added-pts { color: var(--color-success); font-size: 0.9rem; }
+
+/* Dobogó dizájn */
+.podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 300px;
+    gap: 10px;
+    margin: 40px 0;
+}
+
+.podium-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.podium-box.show { opacity: 1; transform: translateY(0); }
+
+.podium-box .bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    border-radius: 10px 10px 0 0;
+}
+
+.gold .bar { background: linear-gradient(#fde047, #ca8a04); color: #422006; }
+.silver .bar { background: linear-gradient(#e2e8f0, #94a3b8); color: #1e293b; }
+.bronze .bar { background: linear-gradient(#fb923c, #9a3412); color: #fff; }
+
+.xp-box {
+    text-align: center;
+    padding: 20px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}

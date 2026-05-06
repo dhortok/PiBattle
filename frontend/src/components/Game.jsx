@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
+import { useAuth } from "../context/AuthContext";
 
 export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [gameState, setGameState] = useState("waiting");
@@ -7,26 +8,29 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [answers, setAnswers] = useState([]);
     const [selected, setSelected] = useState(null);
     const [correct, setCorrect] = useState(null);
-    const [scores, setScores] = useState({});
+    const [scores, setScores] = useState([]);
+    const [prevScores, setPrevScores] = useState([]);
+    const [endTime, setEndTime] = useState(null);
+    const [podiumStep, setPodiumStep] = useState(0);
+    const [progress, setProgress] = useState(100);
+    const { user } = useAuth();
 
     const [timeLeft, setTimeLeft] = useState(0);
     const [maxTime, setMaxTime] = useState(10000);
 
     useEffect(() => {
-        if (gameState !== "question") return;
-
-        const interval = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 0) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 100;
-            });
-        }, 100);
-
-        return () => clearInterval(interval);
-    }, [gameState]);
+        const timer = setInterval(() => {
+            if (endTime && gameState === "question") {
+                const remaining = Math.max(0, endTime - Date.now());
+                // A progress kiszámítása a teljes idő alapján
+                const percentage = (remaining / maxTime) * 100;
+                setProgress(percentage);
+                setTimeLeft(remaining);
+                if (remaining === 0) setTimeLeft(0);
+            }
+        }, 50);
+        return () => clearInterval(timer);
+    }, [endTime, gameState, maxTime]);
 
     useEffect(() => {
         const handleQuestion = (data) => {
@@ -34,21 +38,26 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             setGameState("question");
             setQuestion(data.question);
             setAnswers(data.answers);
+            setMaxTime(data.maxTime);
+            setEndTime(Date.now() + data.maxTime);
             setSelected(null);
             setCorrect(null);
-            setMaxTime(data.maxTime);
-            setTimeLeft(data.maxTime);
         };
 
         const handleResult = (data) => {
+            console.log(data);
             setGameState("result");
             setCorrect(data.correct);
+            setPrevScores([...scores]);
             setScores(data.scores);
         };
 
         const handleEnd = (data) => {
             setGameState("end");
-            setScores(data || {});
+            setScores(data);
+            setTimeout(() => setPodiumStep(1), 1000); // 3. hely
+            setTimeout(() => setPodiumStep(2), 2200); // 2. hely
+            setTimeout(() => setPodiumStep(3), 3400); // 1. hely
         };
 
         socket.on("game:question", handleQuestion);
@@ -60,91 +69,95 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             socket.off("game:result", handleResult);
             socket.off("game:end", handleEnd);
         };
-    }, []);
+    }, [scores]);
 
     const sendAnswer = (index) => {
+        console.log("VÁLASZOLT: ", index);
         if (selected !== null || timeLeft <= 0) return;
         setSelected(index);
         socket.emit("game:answer", { lobbyId, answer: index });
     };
 
-    const progress = Math.max(0, (timeLeft / maxTime) * 100);
-    const sortedScores = Object.entries(scores).sort((a, b) => b[1].score - a[1].score);
-
-    const leaveLobby = () => socket.emit("lobby:leave");
     
-    // JAVÍTVA: Üres socket.emit helyett a Lobby komponens értesítése
     const returnLobby = () => {
         if (onReturnToLobby) onReturnToLobby();
     };
 
     return (
-        <div className="container">
+        <div className="game-layout">
             {gameState === "question" && (
-                <div className="progress-container">
-                    <div 
-                        className="progress-bar"
-                        style={{ 
-                            width: `${progress}%`,
-                            backgroundColor: progress > 50 ? 'var(--color-success)' : progress > 20 ? 'var(--color-warning)' : 'var(--color-danger)'
-                        }} 
-                    />
+                <div className="question-view">
+                    <div className="timer-track"><div className="timer-bar" style={{ width: `${progress}%` }} /></div>
+                    <h2 className="question-text">{question}</h2>
+                    <div className="answers-grid">
+                        {answers.map((a, i) => (
+                            <button 
+                                key={i} 
+                                className={`answer-btn ${selected === i ? 'selected' : ''}`}
+                                onClick={() => sendAnswer(i)}
+                                disabled={selected !== null}
+                            >
+                                {a}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
 
-            {gameState === "question" && (
-                <>
-                    <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>{question}</h2>
-                    <div className="answers-grid">
-                        {answers.map((a, i) => {
-                            let btnClass = "answer-btn";
-                            if (selected === i) btnClass += " answer-selected";
-                            if (gameState === "result") {
-                                if (i === correct) btnClass += " answer-correct";
-                                else if (selected === i) btnClass += " answer-wrong";
-                            }
+            {gameState === "result" && (
+                <div className="result-view">
+                    <h2>{selected === correct ? "Helyes válasz! 🎉" : "Sajnos rossz... 😢"}</h2>
+                    <div className="answers-grid-result">
+                        <button className="answer-btn correct-highlight">{answers[correct]}</button>
+                    </div>
+                    <div className="leaderboard-container">
+                        <h3>Ranglista</h3>
+                        <div className="leaderboard-scroll">
+                        {scores.slice(0, 5).map((p, i) => {
+                            const prevPlayer = prevScores.find(prevP => prevP.socketId === p.socketId);
+                            
+                            const oldScore = prevPlayer ? prevPlayer.score : 0;
+                            const diff = p.score - oldScore;
 
                             return (
-                                <button
-                                    key={i}
-                                    className={btnClass}
-                                    onClick={() => sendAnswer(i)}
-                                    disabled={timeLeft <= 0 || selected !== null}
-                                >
-                                    {a}
-                                </button>
+                                <div key={p.socketId || i} className={`score-row ${p.socketId === socket.id ? 'is-me' : ''}`}>
+                                    <span>#{i + 1} {p.name}</span>
+                                    <span>
+                                        {p.score} 
+                                        <span className="added-pts">
+                                            +{diff >= 0 ? diff : 0}
+                                        </span>
+                                    </span>
+                                </div>
                             );
                         })}
+                        </div>
                     </div>
-                </>
-            )}
-
-            {gameState === "result" && (
-                <>
-                    <h2>Helyes válasz: {answers[correct]}</h2>
-                    <h3>Ranglista:</h3>
-                    <ul>
-                        {sortedScores.map(([id, data], index) => (
-                            <li key={id}>#{index + 1} — {data.name}: {data.score}</li>
-                        ))}
-                    </ul>
-                </>
+                </div>
             )}
 
             {gameState === "end" && (
-                <>
-                    <h2>🏆 Game Over</h2>
-                    <h3>Végeredmény:</h3>
-                    <ul>
-                        {sortedScores.map(([id, data], index) => (
-                            <li key={id}>#{index + 1} — {data.name}: {data.score} (XP: +{data.xp})</li>
-                        ))}
-                    </ul>
-                    <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-                        <button className="btn" onClick={leaveLobby} style={{ background: "red", color: "white" }}>Kilépés a szobából</button>
-                        <button className="btn" onClick={returnLobby} style={{ background: "blue", color: "white" }}>Vissza a váróba</button>
+                <div className="end-view">
+                    <h1>Vége a játéknak!</h1>
+                    <div className="podium">
+                        <div className={`podium-box silver ${podiumStep >= 2 ? 'show' : ''}`}>
+                            <div className="name">{scores[1]?.name}</div>
+                            <div className="bar" style={{height: '60%'}}>2</div>
+                        </div>
+                        <div className={`podium-box gold ${podiumStep >= 3 ? 'show' : ''}`}>
+                            <div className="name">{scores[0]?.name}</div>
+                            <div className="bar" style={{height: '100%'}}>1</div>
+                        </div>
+                        <div className={`podium-box bronze ${podiumStep >= 1 ? 'show' : ''}`}>
+                            <div className="name">{scores[2]?.name}</div>
+                            <div className="bar" style={{height: '40%'}}>3</div>
+                        </div>
                     </div>
-                </>
+                    <div className="xp-box">
+                        {user ? `XP szerzve: +${scores.find(p => p.socketId === socket.id)?.xp}` : "XP-t csak bejelentkezve kaphatsz!"}
+                    </div>
+                    <button className="btn btn-primary" onClick={returnLobby}>Vissza a Lobbyba</button>
+                </div>
             )}
         </div>
     );

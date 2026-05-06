@@ -52,8 +52,12 @@ export default function Lobby({ lobbyId }) {
         alert("Lobby ID másolva!");
     };
 
-    if (gameStarted) return <QuizGame lobbyId={lobbyId} />;
-
+    if (gameStarted) return (
+        <QuizGame 
+            lobbyId={lobbyId} 
+            onReturnToLobby={() => setGameStarted(false)}
+        />
+    );
     return (
         <div className="lobby-container">
             <div className="lobby-header">

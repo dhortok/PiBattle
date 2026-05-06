@@ -31,6 +31,18 @@ class Game {
         return player.userId || player.sessionId;
     }
 
+    getSocketIdByPlayerKey(targetKey) {
+        for (let [socketId, player] of this.lobby.players.entries()) {
+            const key = player.userId || player.sessionId;
+    
+            if (key === targetKey) {
+                return socketId;
+            }
+        }
+    
+        return null; // ha nincs találat
+    }
+
     startGame(io) {
         console.log("Game.start called");
 
@@ -119,13 +131,20 @@ class Game {
 
         this.state = "result";
         
-        const scoresWithNames = {}; // Eltároljuk név szerint a frontendnek
+        let scoresWithNames = [];
 
-       for (let player of this.lobby.players.values()) {
+        for (let player of this.lobby.players.values()) {
             let key = this.getPlayerKey(player);
 
-            scoresWithNames[key] = {name: player?.nickname || "Unknown", score: this.scores[key]};
-       }
+            scoresWithNames.push({
+                socketId: this.getSocketIdByPlayerKey(key),
+                name: player?.nickname || "Unknown",
+                score: this.scores[key]
+            });
+        }
+
+        // rendezés csökkenő sorrendbe score alapján
+        scoresWithNames.sort((a, b) => b.score - a.score);
 
         io.to(this.lobby.id).emit("game:result", {
             correct: q.correct,
@@ -158,17 +177,21 @@ class Game {
         const xpMap = this.calculateXP();
         this.saveXP(xpMap);
 
-        const scoresWithNames = {}; // Eltároljuk név szerint a frontendnek
+        let scoresWithNames = [];
 
         for (let player of this.lobby.players.values()) {
             let key = this.getPlayerKey(player);
-
-            scoresWithNames[key] = {
-                name: player?.nickname || "Unknown", 
+        
+            scoresWithNames.push({
+                socketId: this.getSocketIdByPlayerKey(key),
+                name: player?.nickname || "Unknown",
                 score: this.scores[key],
                 xp: xpMap[key]
-            };
-       }
+            });
+        }
+        
+        // rendezés csökkenő sorrendbe score alapján
+        scoresWithNames.sort((a, b) => b.score - a.score);
 
        if (this.lobby.type === "ranked") {
             this.saveRank();
