@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import QuizGame from "./Game";
 import { socket } from "../socket";
+import { useAlert } from "../context/AlertContext";
 
 export default function Lobby({ lobbyId }) {
     const [players, setPlayers] = useState([]);
@@ -38,6 +39,8 @@ export default function Lobby({ lobbyId }) {
         };
     }, []);
 
+    const { showAlert } = useAlert();
+
     const startGame = () => socket.emit("game:start", lobbyId);
     const leaveLobby = () => socket.emit("lobby:leave", lobbyId);
 
@@ -49,7 +52,7 @@ export default function Lobby({ lobbyId }) {
     // Másolás vágólapra
     const copyLobbyId = () => {
         navigator.clipboard.writeText(lobbyId);
-        alert("Lobby ID másolva!");
+        showAlert("Lobby ID másolva!", "info");
     };
 
     if (gameStarted) return (

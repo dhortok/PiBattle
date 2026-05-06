@@ -130,7 +130,61 @@ h1, h2, h3, h4, p {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
     margin-bottom: 20px;
   }
-  
+  .global-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7); /* Sötétített háttér */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Minden felett */
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.alert-card {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 16px;
+    border: 2px solid #ef4444; /* Alapból piros hiba keret */
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.global-alert-overlay.info .alert-card { border-color: #3b82f6; }
+
+.alert-icon { font-size: 3rem; margin-bottom: 15px; }
+
+.alert-card p {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.alert-card button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.alert-card button:hover { transform: scale(1.05); }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
