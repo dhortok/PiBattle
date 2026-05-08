@@ -308,6 +308,58 @@ h1, h2, h3, h4, p {
     text-align: left;
 }
 
+.badge-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.rank-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Kategória specifikus színek */
+.rank-bronze {
+    background: linear-gradient(135deg, #cd7f32, #8b4513);
+}
+
+.rank-silver {
+    background: linear-gradient(135deg, #bdc3c7, #7f8c8d);
+}
+
+.rank-gold {
+    background: linear-gradient(135deg, #f1c40f, #d4af37);
+    color: #1a1a1a; /* Aranyon jobban néz ki a sötét betű */
+    text-shadow: none;
+}
+
+.rank-emerald {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.rank-diamond {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+.rank-elite {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    animation: elite-glow 2s infinite alternate;
+}
+
+@keyframes elite-glow {
+    from { box-shadow: 0 0 5px #9b59b6; }
+    to { box-shadow: 0 0 15px #9b59b6; }
+}
+
   /* Gombok egységesítése */
   .btn {
     background-color: var(--color-primary);

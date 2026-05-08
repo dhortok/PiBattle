@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { socket, connectSocket } from "./socket";
 import {xp_to_levels} from "../../common/level"
+import {rankCalculator} from "../../common/rank"
 import Home from "./components/Home";
 import Lobby from "./components/Lobby";
 import Login from "./pages/Login";
@@ -70,11 +71,11 @@ function App() {
     }
 
     const stats = user ? xp_to_levels(user.xp || 0) : null;
+    const rankStats = user ? rankCalculator(user.rank_xp || 0) : null;
 
     return (
         <div>
             <nav className="navbar">
-                <div className="nav-logo">PiBattle</div>
                 <div className="nav-auth">
                     {user ? (
                         <div className="user-profile-container">
@@ -83,6 +84,9 @@ function App() {
                                 <div className="user-header-row">
                                     <span className="username">👤 {user.username}</span>
                                     <span className="level-badge">Lvl {stats.level}</span>
+                                    <span className={`rank-badge rank-${rankStats.category}`}>
+                                        {rankStats.rankName}
+                                    </span>
                                 </div>
 
                                 {/* XP progress bar és szöveg */}
