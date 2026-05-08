@@ -352,7 +352,7 @@ app.post("/api/login", async (req, res) => {
             email: user.email,
             username: user.username,
             xp: user.xp,
-            rang: rang
+            rang: user.rang
         }
     });
 });

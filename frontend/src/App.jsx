@@ -71,7 +71,7 @@ function App() {
     }
 
     const stats = user ? xp_to_levels(user.xp || 0) : null;
-    const rankStats = user ? rankCalculator(user.rank_xp || 0) : null;
+    const rankStats = user ? rankCalculator(user.rang || 0) : null;
 
     return (
         <div>
