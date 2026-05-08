@@ -52,7 +52,7 @@ function App() {
     useEffect(() => {
         socket.on("user:update_xp", (newXp) => {
             if (user) {
-                updateUser({ xp: newXp }); 
+                updateUser({ xp: user.xp + newXp }); 
                 console.log("XP frissítve:", newXp);
             }
         });

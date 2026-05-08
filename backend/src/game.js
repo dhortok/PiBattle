@@ -181,13 +181,19 @@ class Game {
 
         for (let player of this.lobby.players.values()) {
             let key = this.getPlayerKey(player);
-        
+            const socketId = this.getSocketIdByPlayerKey(key);
+            const playerXP = xpMap[key] || 0;
+
             scoresWithNames.push({
                 socketId: this.getSocketIdByPlayerKey(key),
                 name: player?.nickname || "Unknown",
                 score: this.scores[key],
-                xp: xpMap[key]
+                xp: playerXP
             });
+
+            if (socketId) {
+                io.to(socketId).emit("user:update_xp", playerXP);
+            }
         }
         
         // rendezés csökkenő sorrendbe score alapján
@@ -198,7 +204,6 @@ class Game {
         }
 
         io.to(this.lobby.id).emit("game:end", scoresWithNames);
-        socket.emit("user:update_xp", newXpAmount);
     }
 
     // XP számolás
