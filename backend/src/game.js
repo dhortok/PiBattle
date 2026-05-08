@@ -109,12 +109,17 @@ class Game {
     }
 
     pointCalculator(time) { //mindkét változónak ugyanaz az időform. kell
-        let point = 100;
+        const TIME_LIMIT = 60; // Maximum idő, amit be lehet állítani
+        const MAX_POINT = 100;
+
+        const funcWeight = this.maxTime / TIME_LIMIT;
         const hatv = Math.pow(10,-(time / this.maxTime));
+        const exp = MAX_POINT * hatv;
+        const linear = (10 - MAX_POINT) / this.maxTime * time + MAX_POINT;
 
-        point *= hatv;
+        const result = funcWeight * exp + (1 - funcWeight) * linear;
 
-        return Math.round(point);
+        return Math.round(result);
     }
 
     endQuestion(io) {
