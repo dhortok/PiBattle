@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import QuizGame from "./Game";
 import { socket } from "../socket";
 import { useAlert } from "../context/AlertContext";
+import {categories} from "../../../common/categories";
 
 export default function Lobby({ lobbyId }) {
+    const categoryArray = Object.entries(categories);
+
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
     const [showSettings, setShowSettings] = useState(false); // Popup állapota
@@ -13,7 +16,8 @@ export default function Lobby({ lobbyId }) {
     const [settings, setSettings] = useState({
         maxPlayer: 5,
         rounds: 5,
-        maxQuestionTime: 30000
+        maxQuestionTime: 30000,
+        category: "geom"
     });
 
     useEffect(() => {
@@ -111,6 +115,7 @@ export default function Lobby({ lobbyId }) {
                         <p><strong>Körök száma:</strong> {settings.rounds}</p>
                         <p><strong>Időkeret:</strong> {settings.maxQuestionTime / 1000} másodperc</p>
                         <p><strong>Max játékos:</strong> {settings.maxPlayer}</p>
+                        <p><strong>Kategória:</strong> {categories[settings.category]}</p>
                     </div>
                     {isHost && (
                         <>
@@ -137,6 +142,26 @@ export default function Lobby({ lobbyId }) {
                         <label>Idő (ms):</label>
                         <input type="number" value={settings.maxQuestionTime} 
                                onChange={e => setSettings({...settings, maxQuestionTime: Number(e.target.value)})} />
+
+                        <label>Kategória:</label>
+                        {
+                            categoryArray.map(c => (
+                                <>
+                                <input 
+                                    type="radio" 
+                                    name="category" 
+                                    id={c[0]} 
+                                    value={c[1]}
+                                    checked={(c[0] === settings.category) ? "checked" : null}
+                                    onChange={_ => setSettings({...settings, category: c[0]})}
+                                />
+                                <label htmlFor={c[0]}>{c[1]}</label>
+                                </>
+                            ))
+                        }
+
+                        {/*Random kategória majd később!*/}
+                        
 
                         <div className="modal-actions">
                             <button className="btn btn-primary" onClick={() => {
