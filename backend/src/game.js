@@ -109,7 +109,7 @@ class Game {
     }
 
     pointCalculator(time) { //mindkét változónak ugyanaz az időform. kell
-        const TIME_LIMIT = 60; // Maximum idő, amit be lehet állítani
+        const TIME_LIMIT = 60000; // Maximum idő, amit be lehet állítani
         const MAX_POINT = 100;
 
         const funcWeight = this.maxTime / TIME_LIMIT;
