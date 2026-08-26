@@ -80,9 +80,7 @@ function generateQuestions(category) {
             
             break;
         
-        case "prob":     //valőszínűségszámítás
-            
-            break;
+        case "prob": return genProbQuestion(); //valőszínűségszámítás
     
         default:
             break;
@@ -91,8 +89,9 @@ function generateQuestions(category) {
     return {};
 }
 
-
-// Algeberai kérdések generálása
+// ----------------------------- //
+// Algeberai kérdések generálása //
+// ------------------------------//
 function genAlgbQuestion() {
     const random = Math.random();
 
@@ -134,6 +133,9 @@ function genAlgbQuestion() {
 }
 
 
+// ------------------------------ //
+// Geometriai kérdések generálása //
+// ------------------------------ //
 function genGeomQuestion() {
     
     // Jelenleg csak derékszögű háromszögek
@@ -166,8 +168,61 @@ function genGeomQuestion() {
 }
 
 
+// -------------------------------- //
+// Valósztínűségi kérdés generálása //
+// -------------------------------- //
+function genProbQuestion() {
+    const szinGolyok = {
+        piros: "🔴",
+        narancs: "🟠",
+        sarga: "🟡",
+        zold: "🟢",
+        kek: "🔵",
+        lila: "🟣",
+        barna: "🟤",
+        fekete: "⚫",
+        feher: "⚪"
+    };
+    let zsak = {};
+    let osszGolyo = 0;
 
+    // Kiválasztjuk a színeket
+    let kivalaszSzinek = randomizeAnswers(Object.keys(szinGolyok)).slice(0, 2);
 
+    // Betesszük a golyókat
+    kivalaszSzinek.forEach(szin => {
+        let golyoBE = randomBetween(2, 10, true);
+        zsak[szin] = golyoBE;
+        osszGolyo += golyoBE;
+    });
+
+    // Melyik golyót kérdezzük
+    let kerdezettSzin = kivalaszSzinek[0];
+
+    // Kiszámoljuk a valszínűségeket
+    let helyesValasz = `${zsak[kerdezettSzin]}/${osszGolyo} (${(zsak[kerdezettSzin] / osszGolyo) * 100}%)`;
+
+    let answers = [helyesValasz];
+
+    // Hozzáadunk random válaszokat
+    for (let i = 0; i < 3; i++) {
+        let rngOssz = randomBetween(2, 10, true);
+        let rngVal = randomBetween(1, rngOssz, true);
+        answers.push(`${rngVal}/${rngOssz} (${(rngVal / rngOssz) * 100}%)`);
+    }
+    
+    answers = randomizeAnswers(answers);
+
+    // Megcsináljuk quizesen
+    let question = `Egy zsákba beteszünk ${zsak[kivalaszSzinek[0]]}db ${kivalaszSzinek[0]} és ${zsak[kivalaszSzinek[1]]}db ${kivalaszSzinek[1]} golyót. 
+    Mennyi a valószínűsége, hogy az első golyó színe: ${szinGolyok[kerdezettSzin]}?`;
+
+    return {
+        question: question,
+        answers: answers,
+        correct: answers.indexOf(helyesValasz)
+    }
+}
 
 
 //module.exports = test;
