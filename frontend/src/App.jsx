@@ -7,6 +7,7 @@ import Lobby from "./components/Lobby";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { useAuth } from "./context/AuthContext";
+import FallingMath from "./components/FallingMath";
 
 function App() {
     const { user, updateUser, logout } = useAuth();
@@ -75,6 +76,8 @@ function App() {
 
     return (
         <div>
+            <FallingMath />
+
             <nav className="navbar">
                 <div className="nav-auth">
                     {user ? (
