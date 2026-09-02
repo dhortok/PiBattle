@@ -3,10 +3,10 @@ import QuizGame from "./Game";
 import { socket } from "../socket";
 import { useAlert } from "../context/AlertContext";
 import {categories} from "../../../common/categories";
+import PlayerList from "./PlayerList";
+import SettingsModal from "./SettingsModal";
 
 export default function Lobby({ lobbyId }) {
-    const categoryArray = Object.entries(categories);
-
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
     const [showSettings, setShowSettings] = useState(false); // Popup állapota
@@ -59,6 +59,12 @@ export default function Lobby({ lobbyId }) {
         showAlert("Lobby ID másolva!", "info");
     };
 
+    const handleSaveSettings = (newSettings) => {
+        setSettings(newSettings);
+        socket.emit("lobby:updateSettings", { lobbyId, settings: newSettings });
+        setShowSettings(false);
+      };
+
     if (gameStarted) return (
         <QuizGame 
             lobbyId={lobbyId} 
@@ -77,35 +83,15 @@ export default function Lobby({ lobbyId }) {
 
             <div className="lobby-content">
                 {/* BAL OLDAL: Játékosok */}
-                <div className="card players-card">
-                    <h3>👥 Játékosok ({players.length}/{settings.maxPlayer})</h3>
-                    <ul className="player-list">
-                        {players.map(p => (
-                            <li key={p.socketId} className={p.socketId === host ? "is-host" : ""}>
-                                <span>{p.nickname} {p.socketId === host && "👑"}</span>
-                                {!isRanked && (
-                                    <span className={p.ready ? "status-ready" : "status-waiting"}>
-                                    {p.ready ? " ✅" : " ❌"}
-                                    </span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-
-                    {isRanked && (
-                        <p style={{ fontStyle: "italic", marginTop: 10 }}>
-                            {!isRankReady ? ("Várakozás játékosokra") : ("A lobby megtelt, a játék hamarosan elindul!")}
-                        </p>
-                        
-                    )}
-
-                    <div className="lobby-actions">
-                        {!isRanked ? (
-                        <button className="btn btn-primary" onClick={() => socket.emit("player:ready", lobbyId)}>Kész vagyok</button>
-                        ) : (null)}
-                        <button className="btn btn-danger" onClick={() => socket.emit("lobby:leave", lobbyId)}>Kilépés</button>
-                    </div>
-                </div>
+                <PlayerList
+                    players={players}
+                    host={host}
+                    maxPlayer={settings.maxPlayer}
+                    isRanked={isRanked}
+                    isRankReady={isRankReady}
+                    lobbyId={lobbyId}
+                    socket={socket}
+                />
 
                 {/* JOBB OLDAL: Játékszabályok nézete */}
                 {!isRanked ? (
@@ -128,50 +114,11 @@ export default function Lobby({ lobbyId }) {
 
             {/* POPUP MODAL (Csak a Hostnak) */}
             {showSettings && (
-                <div className="modal-overlay">
-                    <div className="modal-card">
-                        <h3>Játék Beállítások</h3>
-                        <label>Max Játékos: {settings.maxPlayer}</label>
-                        <input type="range" min="2" max="20" value={settings.maxPlayer} 
-                               onChange={e => setSettings({...settings, maxPlayer: Number(e.target.value)})} />
-                        
-                        <label>Körök: {settings.rounds}</label>
-                        <input type="range" min="3" max="20" value={settings.rounds} 
-                               onChange={e => setSettings({...settings, rounds: Number(e.target.value)})} />
-
-                        <label>Idő (ms):</label>
-                        <input type="number" value={settings.maxQuestionTime} 
-                               onChange={e => setSettings({...settings, maxQuestionTime: Number(e.target.value)})} />
-
-                        <label>Kategória:</label>
-                        {
-                            categoryArray.map(c => (
-                                <>
-                                <input 
-                                    type="radio" 
-                                    name="category" 
-                                    id={c[0]} 
-                                    value={c[1]}
-                                    checked={(c[0] === settings.category) ? "checked" : null}
-                                    onChange={_ => setSettings({...settings, category: c[0]})}
-                                />
-                                <label htmlFor={c[0]}>{c[1]}</label>
-                                </>
-                            ))
-                        }
-
-                        {/*Random kategória majd később!*/}
-                        
-
-                        <div className="modal-actions">
-                            <button className="btn btn-primary" onClick={() => {
-                                socket.emit("lobby:updateSettings", { lobbyId, settings });
-                                setShowSettings(false);
-                            }}>Mentés</button>
-                            <button className="btn btn-outline" onClick={() => setShowSettings(false)}>Mégse</button>
-                        </div>
-                    </div>
-                </div>
+                <SettingsModal
+                initialSettings={settings}
+                onSave={handleSaveSettings}
+                onClose={() => setShowSettings(false)}
+                />
             )}
         </div>
     );
