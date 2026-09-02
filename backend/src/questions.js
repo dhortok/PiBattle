@@ -95,32 +95,47 @@ function generateQuestions(category) {
 function genAlgbQuestion() {
     const random = Math.random();
 
-    const a = randomBetween(1, 10, true);
-    const b = randomBetween(1, 10, true);
-    const c = randomBetween(1, 10, true);
-    const d = randomBetween(1, 10, true);
-
     let x = 0;
     let egyenlet = "";
 
     if (random < 0.25) {
+        const a = randomBetween(1, 3, true);
+        const b = randomBetween(1, 5, true);
+        const c = (a * randomBetween(3, 5, true)) + b;
         x = (c-b)/a;
-        egyenlet = `${a}x+${b}=${c}`;
+        egyenlet = `${(a === 1) ? "" : a}x+${b}=${c}`;
     } else if (random < 0.5) {
+        const c = randomBetween(1, 3, true);
+        const a = randomBetween(c+1, c+3, true);
+        const b = randomBetween(1, 5, true);
+        const d = ((a-c) * randomBetween(3, 5, true)) + b;
         x = (d-b)/(a-c);
-        egyenlet = `${a}x+${b}=${c}x+${d}`;
+        egyenlet = `${a}x+${b}=${(c === 1) ? "" : c}x+${d}`;
     } else if (random < 0.75) {
+        const a = randomBetween(1, 3, true);
+        const cb = a * randomBetween(3, 5, true);
+        const b = randomBetween(1, cb-1, true);
+        const c = cb - b;
         x = (c+b)/a;
-        egyenlet = `${a}x-${b}=${c}`;
+        egyenlet = `${(a === 1) ? "" : a}x-${b}=${c}`;
     } else {
-        x = (d-b)/(a-c);
-        egyenlet = `${a}x+${b}=${c}x-${d}`;
+        const c = randomBetween(1, 3, true);
+        const a = randomBetween(c+1, c+3, true);
+        const db = (a-c) * randomBetween(3, 5, true);
+        const b = randomBetween(1, db-1, true);
+        const d = db - b;
+        x = (d+b)/(a-c);
+        egyenlet = `${a}x-${b}=${(c === 1) ? "" : c}x+${d}`;
     }
 
     const question = "Old meg az egyenletet x-re:\n" + egyenlet;
     let answers = [x];
     for (let i = 0; i < 3; i++) {
-        answers.push(randomBetween(1, 10));
+        let answ;
+        do {
+            answ = randomBetween(1, 10, true);
+        } while (answers.includes(answ));
+        answers.push(answ);
     }
 
     answers = randomizeAnswers(answers);
