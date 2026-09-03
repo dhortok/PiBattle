@@ -10,20 +10,21 @@ const getSessionId = () => {
     return sid;
 };
 
+// MÁR AZ INICIALIZÁLÁSKOR ADJUK MEG A SESSIONID-T!
 export const socket = io("http://localhost:3000", {
-    autoConnect: false
+    autoConnect: false,
+    auth: {
+        sessionId: getSessionId()
+    }
 });
 
 export const connectSocket = (token) => {
-    // Ha már él a kapcsolat, bontsuk, mielőtt új auth adatokkal csatlakozunk
-    if (socket.connected) {
-        socket.disconnect();
-    }
-
     socket.auth = {
         token,
         sessionId: getSessionId()
     };
 
-    socket.connect();
+    if (!socket.connected) {
+        socket.connect();
+    }
 };

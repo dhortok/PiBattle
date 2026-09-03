@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { socket, connectSocket } from "./socket";
-import {xp_to_levels} from "../../common/level"
-import {rankCalculator} from "../../common/rank"
+import {Route, Routes, useNavigate} from "react-router-dom";
+
+import {xp_to_levels} from "../../common/level";
+import {rankCalculator} from "../../common/rank";
+
 import Home from "./components/Home";
 import Lobby from "./components/Lobby";
 import Login from "./pages/Login";
@@ -12,20 +15,27 @@ import FallingMath from "./components/FallingMath";
 function App() {
     const { user, updateUser, logout } = useAuth();
 
-    const [lobbyId, setLobbyId] = useState(null);
+    const navigate = useNavigate();
+
     const [authMode, setAuthMode] = useState(null); // null | login | register
 
     useEffect(() => {
-        socket.on("connect", () => {
+        const token = localStorage.getItem("token");
+        
+        connectSocket(token);
+    
+        const handleConnect = () => {
             const savedLobby = localStorage.getItem("lobbyId");
     
             if (savedLobby) {
                 socket.emit("lobby:reconnect", savedLobby);
             }
-        });
+        };
+    
+        socket.on("connect", handleConnect);
     
         return () => {
-            socket.off("connect");
+            socket.off("connect", handleConnect);
         };
     }, []);
 
@@ -34,21 +44,23 @@ function App() {
 
         connectSocket(token);
 
-        socket.on("lobby:created", setLobbyId);
+        socket.on("lobby:created", (id) => {
+            navigate(`/lobby/${id}`);
+        });
         socket.on("lobby:joined", (id) => {
             localStorage.setItem("lobbyId", id);
-            setLobbyId(id);
+            navigate(`/lobby/${id}`);
         });
         socket.on("lobby:left", () => {
             localStorage.removeItem("lobbyId");
-            setLobbyId(null);
+            navigate('/');
         });
 
         return () => {
             socket.off("lobby:created");
             socket.off("lobby:joined");
         };
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         socket.on("user:update_xp", (newXp) => {
@@ -121,10 +133,10 @@ function App() {
             </nav>
 
             <main className="main-content">
-            {!lobbyId
-                ? <Home setLobbyId={setLobbyId} />
-                : <Lobby lobbyId={lobbyId} />
-            }
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/lobby/:id" element={<Lobby />} />
+                </Routes>
             </main>
         </div>
     );

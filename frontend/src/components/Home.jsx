@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext";
 
-export default function Home({ setLobbyId }) {
+export default function Home() {
 
     const { user } = useAuth();
+    const { showAlert } = useAlert();
 
     const [input, setInput] = useState("");
     const [name, setName] = useState("");
@@ -23,7 +25,7 @@ export default function Home({ setLobbyId }) {
 
     const handleRankedJoin = () => {
         if (!user) {
-            alert("Be kell jelentkezned a Ranked módhoz!");
+            showAlert("Be kell jelentkezned a Ranked módhoz!", "error");
             return;
         }
         setLoading(true);
@@ -57,7 +59,10 @@ export default function Home({ setLobbyId }) {
                         <input className="lobby-input" type="text"
                             placeholder="Adj meg ideiglenes nevet"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                localStorage.setItem("playerName", e.target.value);
+                            }}
                         />
                         )}
 

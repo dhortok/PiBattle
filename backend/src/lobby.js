@@ -20,6 +20,7 @@ class Lobby {
 
     async addPlayer(socket, name) {
         if (this.players.size >= this.settings.maxPlayer) return false;
+        if (this.players.has(socket)) return false;
 
         let nickname;
     

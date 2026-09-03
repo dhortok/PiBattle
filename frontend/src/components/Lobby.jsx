@@ -5,8 +5,15 @@ import { useAlert } from "../context/AlertContext";
 import {categories} from "../../../common/categories";
 import PlayerList from "./PlayerList";
 import SettingsModal from "./SettingsModal";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function Lobby({ lobbyId }) {
+
+export default function Lobby() {
+    const { id: lobbyId } = useParams();
+
+    const navigate = useNavigate();
+
+    const [userName, setUserName] = useState(() => localStorage.getItem("playerName") || "");
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
     const [showSettings, setShowSettings] = useState(false); // Popup állapota
@@ -20,7 +27,14 @@ export default function Lobby({ lobbyId }) {
         category: "geom"
     });
 
+    console.log(lobbyId);
+
     useEffect(() => {
+        socket.emit("lobby:join", {
+            lobbyCode: lobbyId,
+            name: ""
+        });
+
         const handleUpdate = (data) => {
             console.log(data);
             setPlayers(data.players);
@@ -33,15 +47,18 @@ export default function Lobby({ lobbyId }) {
 
         const handleRankReady = () => setIsRankReady(true);
 
+        const handleLobbyError = () => navigate("/");
+
         socket.on("lobby:update", handleUpdate);
         socket.on("game:start", handleStart);
         socket.on("rank:ready", handleRankReady);
+        socket.on("lobby:error", handleLobbyError);
 
         return () => {
             socket.off("lobby:update", handleUpdate);
             socket.off("game:start", handleStart);
         };
-    }, []);
+    }, [lobbyId]);
 
     const { showAlert } = useAlert();
 
