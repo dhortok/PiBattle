@@ -106,7 +106,8 @@ io.on('connection', (socket) => {
         setTimeout(() => {
             io.to(lobbyCode).emit("lobby:update", {
                 players: lobby.getPlayerList(),
-                host: lobby.host
+                host: lobby.host,
+                settings: lobby.settings
             });
         }, 250);
 
