@@ -34,6 +34,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="rounds" 
                     id="round_3"
                     value={3}
+                    checked={localSettings.rounds == 3}
                     onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -44,6 +45,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="rounds" 
                     id="round_5"
                     value={5}
+                    checked={localSettings.rounds == 5}
                     onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -54,6 +56,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="rounds" 
                     id="round_10"
                     value={10}
+                    checked={localSettings.rounds == 10}
                     onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -64,6 +67,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="rounds" 
                     id="round_15"
                     value={15}
+                    checked={localSettings.rounds == 15}
                     onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -74,6 +78,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="rounds" 
                     id="round_20"
                     value={20}
+                    checked={localSettings.rounds == 20}
                     onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -88,6 +93,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="maxTime" 
                     id="maxTime_10"
                     value={10000}
+                    checked={localSettings.maxQuestionTime == 10000}
                     onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -98,6 +104,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="maxTime" 
                     id="maxTime_20"
                     value={20000}
+                    checked={localSettings.maxQuestionTime == 20000}
                     onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -108,6 +115,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="maxTime" 
                     id="maxTime_30"
                     value={30000}
+                    checked={localSettings.maxQuestionTime == 30000}
                     onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -118,6 +126,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="maxTime" 
                     id="maxTime_45"
                     value={45000}
+                    checked={localSettings.maxQuestionTime == 45000}
                     onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
@@ -128,6 +137,7 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
                     name="maxTime" 
                     id="maxTime_60"
                     value={60000}
+                    checked={localSettings.maxQuestionTime == 60000}
                     onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
                     className="lobby-sr-only"
                 />
