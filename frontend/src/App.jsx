@@ -87,7 +87,7 @@ function App() {
     const rankStats = user ? rankCalculator(user.rang || 0) : null;
 
     return (
-        <div>
+        <div className="app-wrapper">
             <FallingMath />
 
             <nav className="navbar">

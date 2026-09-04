@@ -14,6 +14,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [podiumStep, setPodiumStep] = useState(0);
     const [progress, setProgress] = useState(100);
     const { user } = useAuth();
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     const [timeLeft, setTimeLeft] = useState(0);
     const [maxTime, setMaxTime] = useState(10000);
@@ -42,6 +43,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             setEndTime(Date.now() + data.maxTime);
             setSelected(null);
             setCorrect(null);
+            setShowLeaderboard(false);
         };
 
         const handleResult = (data) => {
@@ -50,6 +52,10 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             setCorrect(data.correct);
             setPrevScores([...scores]);
             setScores(data.scores);
+
+            setTimeout(() => {
+                setShowLeaderboard(true);
+            }, 2000);
         };
 
         const handleEnd = (data) => {
@@ -83,56 +89,78 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
         if (onReturnToLobby) onReturnToLobby();
     };
 
+
+    const getButtonClass = (index) => {
+        let classes = "answer-btn";
+        if (gameState === "question") {
+            if (selected === index) classes += " selected";
+        } else if (gameState === "result") {
+            if (index === correct) {
+                classes += " correct"; // Zöld
+            } else if (selected === index) {
+                classes += " wrong"; // Piros
+            } else {
+                classes += " dimmed"; // Halványított nem választott opciók
+            }
+        }
+        return classes;
+    }
+
+
+
     return (
         <div className="game-layout">
-            {gameState === "question" && (
-                <div className="question-view">
-                    <div className="timer-track"><div className="timer-bar" style={{ width: `${progress}%` }} /></div>
-                    <h2 className="question-text">{question}</h2>
-                    <div className="answers-grid">
-                        {answers.map((a, i) => (
-                            <button 
-                                key={i} 
-                                className={`answer-btn ${selected === i ? 'selected' : ''}`}
-                                onClick={() => sendAnswer(i)}
-                                disabled={selected !== null}
-                            >
-                                {a}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {(gameState === "question" || gameState === "result") && (
+                <div className="quiz-container">
+                    
+                    {/* Ranglista panel - Becsúszik jobbról */}
+                    <div className={`leaderboard-panel ${showLeaderboard ? "slide-in" : ""}`}>
+                        {gameState === "result" && (
+                            <div className="result-view">
+                                <h2>{selected === correct ? "Helyes válasz! 🎉" : selected === null ? "Lejárt az idő! ⏰" : "Sajnos rossz... 😢"}</h2>
+                                <div className="leaderboard-container">
+                                    <h3>Ranglista</h3>
+                                    <div className="leaderboard-scroll">
+                                    {scores.slice(0, 5).map((p, i) => {
+                                        const prevPlayer = prevScores.find(prevP => prevP.socketId === p.socketId);
+                                        
+                                        const oldScore = prevPlayer ? prevPlayer.score : 0;
+                                        const diff = p.score - oldScore;
 
-            {gameState === "result" && (
-                <div className="result-view">
-                    <h2>{selected === correct ? "Helyes válasz! 🎉" : "Sajnos rossz... 😢"}</h2>
-                    <div className="answers-grid-result">
-                        <button className="answer-btn correct-highlight">{answers[correct]}</button>
-                    </div>
-                    <div className="leaderboard-container">
-                        <h3>Ranglista</h3>
-                        <div className="leaderboard-scroll">
-                        {scores.slice(0, 5).map((p, i) => {
-                            const prevPlayer = prevScores.find(prevP => prevP.socketId === p.socketId);
-                            
-                            const oldScore = prevPlayer ? prevPlayer.score : 0;
-                            const diff = p.score - oldScore;
-
-                            return (
-                                <div key={p.socketId || i} className={`score-row ${p.socketId === socket.id ? 'is-me' : ''}`}>
-                                    <span>#{i + 1} {p.name}</span>
-                                    <span>
-                                        {p.score} 
-                                        <span className="added-pts">
-                                            +{diff >= 0 ? diff : 0}
-                                        </span>
-                                    </span>
+                                        return (
+                                            <div key={p.socketId || i} className={`score-row ${p.socketId === socket.id ? 'is-me' : ''}`}>
+                                                <span className={`score-pos ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}`}>#{i + 1}</span>
+                                                <span className="score-name">{p.name}</span>
+                                                <span className="score-point">{p.score}</span>
+                                                <span className={`score-diff ${diff > 0 ? "up" : ""}`}>{diff > 0 ? `+${diff}` : "-"}</span>
+                                            </div>
+                                        );
+                                    })}
+                                    </div>
                                 </div>
-                            );
-                        })}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="question-view">
+                        {gameState == "question" && (
+                        <div className="timer-track"><div className="timer-bar" style={{ width: `${progress}%` }} /></div>
+                        )}
+                        <h2 className="question-text">{question}</h2>
+                        <div className="answers-grid">
+                            {answers.map((a, i) => (
+                                <button 
+                                    key={i} 
+                                    className={getButtonClass(i)}
+                                    onClick={() => sendAnswer(i)}
+                                    disabled={selected !== null}
+                                >
+                                    {a}
+                                </button>
+                            ))}
                         </div>
                     </div>
+                    
                 </div>
             )}
 
