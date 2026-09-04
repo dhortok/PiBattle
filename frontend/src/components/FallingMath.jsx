@@ -32,21 +32,37 @@ const matekSzimbolumok = [
     "%", "‰", "!", "ƒ", "ℵ"
 ];
 
+const pi = ["π"];
+
 
 export default function FallingMath() {
     let symbolsOnScreen = [];
     
-    
+    /* EZ AZ ALAP (mindenféle matek szimbólum)
     for (let i = 0; i < 120; i++) {
-           symbolsOnScreen.push({
-                id: i,
-                character: matekSzimbolumok[Math.floor(Math.random() * matekSzimbolumok.length)],
-                size: Math.floor(6 + (Math.random() * 15)),
-                speed: Math.floor(5 + (Math.random() * 15)),
-                opacity: (0.15 + (Math.random() * 0.55)),
-                posX: Math.floor(Math.random() * 100),
-                delay: Math.floor((Math.random() * 10) - 10)
-           })
+        symbolsOnScreen.push({
+            id: i,
+            character: matekSzimbolumok[Math.floor(Math.random() * matekSzimbolumok.length)],
+            size: Math.floor(6 + (Math.random() * 15)),
+            speed: Math.floor(5 + (Math.random() * 15)),
+            opacity: (0.15 + (Math.random() * 0.55)),
+            posX: Math.floor(Math.random() * 100),
+            delay: Math.floor((Math.random() * 10) - 10)
+        })
+    }
+    */
+
+    /* CSAK PI */
+    for (let i = 0; i < 120; i++) {
+        symbolsOnScreen.push({
+            id: i,
+            character: pi[Math.floor(Math.random() * pi.length)],
+            size: Math.floor(6 + (Math.random() * 25)),
+            speed: Math.floor(5 + (Math.random() * 15)),
+            opacity: (0.15 + (Math.random() * 0.55)),
+            posX: Math.floor(Math.random() * 100),
+            delay: Math.floor((Math.random() * 10) - 10)
+        })
     }
 
 
