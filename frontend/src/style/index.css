@@ -635,12 +635,12 @@ input:focus {
 }
   
 .lobby-card:hover {
-    border-color: var(--color-surface);
+    border-color: var(--color-primary-hover);
 }
   
 /* Amikor a rádiógomb be van jelölve, a mögötte lévő Label változik */
 input:checked + .lobby-card {
-    border-color: var(--color-primary-hover);
+    border-color: var(--color-primary);
     background-color: var(--color-surface);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
@@ -650,3 +650,61 @@ input:focus-visible + .lobby-card {
     outline: 2px solid var(--color-primary-hover);
     outline-offset: 2px;
 }
+
+
+.lobby-card.extrem {
+    align-items: center;
+    text-shadow: 1px 1px 10px rgb(255, 75, 0);
+    transition: none;
+}
+
+.lobby-card.extrem:hover {
+    border: 2px solid transparent;
+    background: 
+        linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) border-box;
+}
+
+
+input:checked + .lobby-card.extrem {
+    border: 2px solid transparent;
+    background: 
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) padding-box,
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) border-box;
+    text-shadow: 1px 1px 10px black;
+}
+
+.lobby-card.survival {
+    align-items: center;
+    text-shadow: 1px 1px 10px rgb(255, 0, 0);
+    transition: none;
+}
+
+.lobby-card.survival:hover {
+    border: 2px solid transparent;
+    background: 
+        linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) border-box;
+}
+
+
+input:checked + .lobby-card.survival {
+    border: 2px solid transparent;
+    background: 
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) padding-box,
+        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) border-box;
+    text-shadow: 1px 1px 10px black;
+}
+
+
+
+
+
+
+
+
+
+.hidden {
+    display: none;
+}
+  

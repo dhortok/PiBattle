@@ -24,7 +24,8 @@ export default function Lobby() {
         maxPlayer: 5,
         rounds: 5,
         maxQuestionTime: 30000,
-        category: "geom"
+        category: "geom",
+        gameMode: "default"
     });
 
     console.log(lobbyId);
@@ -115,7 +116,8 @@ export default function Lobby() {
                 <div className="card settings-view-card">
                     <h3>⚙️ Játékszabályok</h3>
                     <div className="settings-info">
-                        <p><strong>Körök száma:</strong> {settings.rounds}</p>
+                        <p><strong>Játékmód:</strong> {settings.gameMode === "default" ? "Klasszikus" : settings.gameMode === "extrem" ? "EXTRÉM 🔥" : "Túlélő ❤"}</p>
+                        <p><strong>Körök száma:</strong> {settings.gameMode !== "survival" ? settings.rounds : "∞"}</p>
                         <p><strong>Időkeret:</strong> {settings.maxQuestionTime / 1000} másodperc</p>
                         <p><strong>Max játékos:</strong> {settings.maxPlayer}</p>
                         <p><strong>Kategória:</strong> {categories[settings.category]}</p>

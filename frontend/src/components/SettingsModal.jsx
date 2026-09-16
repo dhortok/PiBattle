@@ -9,10 +9,49 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
         onSave(localSettings);
     };
 
+    const roundsPre = [3, 5, 10, 15, 20];
+    const maxTimePre = [10, 20, 30, 45, 60];
+
     return (
         <div className="modal-overlay">
         <div className="modal-card">
             <h3>Játék Beállítások</h3>
+
+            <div className="lobby-card-selector">
+                <label><b>Játékmód:</b></label>
+                <input 
+                    type="radio" 
+                    name="gameMode" 
+                    id="gameMode_default"
+                    value="default"
+                    checked={localSettings.gameMode == "default"}
+                    onChange={(e) => setLocalSettings({ ...localSettings, gameMode: e.target.value })}
+                    className="lobby-sr-only"
+                />
+                <label htmlFor="gameMode_default" className="lobby-card">Klasszikus</label>
+
+                <input 
+                    type="radio" 
+                    name="gameMode" 
+                    id="gameMode_extrem"
+                    value="extrem"
+                    checked={localSettings.gameMode == "extrem"}
+                    onChange={(e) => setLocalSettings({ ...localSettings, gameMode: e.target.value })}
+                    className="lobby-sr-only"
+                />
+                <label htmlFor="gameMode_extrem" className="lobby-card extrem">🔥 EXTRÉM</label>
+                
+                <input 
+                    type="radio" 
+                    name="gameMode" 
+                    id="gameMode_survival"
+                    value="survival"
+                    checked={localSettings.gameMode == "survival"}
+                    onChange={(e) => setLocalSettings({ ...localSettings, gameMode: e.target.value })}
+                    className="lobby-sr-only"
+                />
+                <label htmlFor="gameMode_survival" className="lobby-card survival">❤ Túlélő</label>
+            </div>
 
             {/*Max játékosszám*/}
             <div className="lobby-card-selector">
@@ -27,121 +66,44 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
             </div>
             
             {/*Körök száma*/}
-            <div className="lobby-card-selector">
+            <div className={`lobby-card-selector`}>
                 <label><b>Körök:</b></label>
-                <input 
-                    type="radio" 
-                    name="rounds" 
-                    id="round_3"
-                    value={3}
-                    checked={localSettings.rounds == 3}
-                    onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="round_3" className="lobby-card">3</label>
-
-                <input 
-                    type="radio" 
-                    name="rounds" 
-                    id="round_5"
-                    value={5}
-                    checked={localSettings.rounds == 5}
-                    onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="round_5" className="lobby-card">5</label>
-
-                <input 
-                    type="radio" 
-                    name="rounds" 
-                    id="round_10"
-                    value={10}
-                    checked={localSettings.rounds == 10}
-                    onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="round_10" className="lobby-card">10</label>
-
-                <input 
-                    type="radio" 
-                    name="rounds" 
-                    id="round_15"
-                    value={15}
-                    checked={localSettings.rounds == 15}
-                    onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="round_15" className="lobby-card">15</label>
-
-                <input 
-                    type="radio" 
-                    name="rounds" 
-                    id="round_20"
-                    value={20}
-                    checked={localSettings.rounds == 20}
-                    onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="round_20" className="lobby-card">20</label>
+                {localSettings.gameMode !== "survival" && roundsPre.map((item) => (
+                    <div key={"round_" + item} className="radio-group">
+                        <input 
+                            type="radio" 
+                            name="rounds" 
+                            id={"round_" + item}
+                            value={item}
+                            checked={localSettings.rounds == item}
+                            onChange={(e) => setLocalSettings({ ...localSettings, rounds: Number(e.target.value) })}
+                            className="lobby-sr-only"
+                        />
+                        <label htmlFor={"round_" + item} className="lobby-card">{item}</label>
+                    </div>
+                ))}
+                {localSettings.gameMode === "survival" && (
+                    <label>Nem lehet megadni kört "Survival" módban!</label>
+                )}
             </div>
 
             {/*Max idő válaszolásra*/}
             <div className="lobby-card-selector">
                 <label><b>Idő (mp):</b></label>
-                <input 
-                    type="radio" 
-                    name="maxTime" 
-                    id="maxTime_10"
-                    value={10000}
-                    checked={localSettings.maxQuestionTime == 10000}
-                    onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="maxTime_10" className="lobby-card">10</label>
-
-                <input 
-                    type="radio" 
-                    name="maxTime" 
-                    id="maxTime_20"
-                    value={20000}
-                    checked={localSettings.maxQuestionTime == 20000}
-                    onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="maxTime_20" className="lobby-card">20</label>
-
-                <input 
-                    type="radio" 
-                    name="maxTime" 
-                    id="maxTime_30"
-                    value={30000}
-                    checked={localSettings.maxQuestionTime == 30000}
-                    onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="maxTime_30" className="lobby-card">30</label>
-
-                <input 
-                    type="radio" 
-                    name="maxTime" 
-                    id="maxTime_45"
-                    value={45000}
-                    checked={localSettings.maxQuestionTime == 45000}
-                    onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="maxTime_45" className="lobby-card">45</label>
-
-                <input 
-                    type="radio" 
-                    name="maxTime" 
-                    id="maxTime_60"
-                    value={60000}
-                    checked={localSettings.maxQuestionTime == 60000}
-                    onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
-                    className="lobby-sr-only"
-                />
-                <label htmlFor="maxTime_60" className="lobby-card">60</label>
+                {maxTimePre.map((item) => (
+                    <div key={"maxTime_" + item} className="radio-group">
+                        <input 
+                            type="radio" 
+                            name="maxTime" 
+                            id={"maxTime_" + item}
+                            value={item * 1000}
+                            checked={localSettings.maxQuestionTime == (item * 1000)}
+                            onChange={(e) => setLocalSettings({ ...localSettings, maxQuestionTime: Number(e.target.value) })}
+                            className="lobby-sr-only"
+                        />
+                        <label htmlFor={"maxTime_" + item} className="lobby-card">{item}</label>
+                    </div>
+                ))}
             </div>
 
             {/*Kategória*/}

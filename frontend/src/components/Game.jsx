@@ -6,6 +6,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [gameState, setGameState] = useState("waiting");
     const [question, setQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
+    const [questionIndex, setquestionIndex] = useState(null);
     const [selected, setSelected] = useState(null);
     const [correct, setCorrect] = useState(null);
     const [scores, setScores] = useState([]);
@@ -40,6 +41,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
             setQuestion(data.question);
             setAnswers(data.answers);
             setMaxTime(data.maxTime);
+            setquestionIndex(data.questionIndex);
             setEndTime(Date.now() + data.maxTime);
             setSelected(null);
             setCorrect(null);
@@ -128,11 +130,11 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
                                         const diff = p.score - oldScore;
 
                                         return (
-                                            <div key={p.socketId || i} className={`score-row ${p.socketId === socket.id ? 'is-me' : ''}`}>
+                                            <div key={p.socketId || i} className={`score-row ${p.socketId === socket.id ? 'is-me' : ''} ${p.out ? 'out' : ''}`}>
                                                 <span className={`score-pos ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}`}>#{i + 1}</span>
-                                                <span className="score-name">{p.name}</span>
+                                                <span className="score-name">{p.name}{p.streak > 2 ? " 🔥" : ""}</span>
                                                 <span className="score-point">{p.score}</span>
-                                                <span className={`score-diff ${diff > 0 ? "up" : ""}`}>{diff > 0 ? `+${diff}` : "-"}</span>
+                                                <span className={`score-diff ${p.out ? "out" : p.streak > 2 ? "streak" : diff > 0 ? "up" : ""}`}>{p.out ? "OUT" : diff > 0 ? `+${diff}` : "-"}</span>
                                             </div>
                                         );
                                     })}
@@ -142,24 +144,32 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
                         )}
                     </div>
 
-                    <div className="question-view">
-                        {gameState == "question" && (
-                        <div className="timer-track"><div className="timer-bar" style={{ width: `${progress}%` }} /></div>
-                        )}
-                        <h2 className="question-text">{question}</h2>
-                        <div className="answers-grid">
-                            {answers.map((a, i) => (
-                                <button 
-                                    key={i} 
-                                    className={getButtonClass(i)}
-                                    onClick={() => sendAnswer(i)}
-                                    disabled={selected !== null}
-                                >
-                                    {a}
-                                </button>
-                            ))}
+                    {!scores.find(item => item.socketId === socket.id)?.out && (
+                        <div className="question-view">
+                            {gameState == "question" && (
+                            <div className="timer-track"><div className="timer-bar" style={{ width: `${progress}%` }} /></div>
+                            )}
+                            <h3>{questionIndex + 1}. Kérdés</h3>
+                            <h2 className="question-text">{question}</h2>
+                            <div className="answers-grid">
+                                {answers.map((a, i) => (
+                                    <button 
+                                        key={i} 
+                                        className={getButtonClass(i)}
+                                        onClick={() => sendAnswer(i)}
+                                        disabled={selected !== null}
+                                    >
+                                        {a}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
+                    {scores.find(item => item.socketId === socket.id)?.out && (
+                        <div className="question-view">
+                            <h2>Kiestél!</h2>
+                        </div>
+                    )}
                     
                 </div>
             )}

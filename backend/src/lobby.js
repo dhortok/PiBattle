@@ -14,7 +14,8 @@ class Lobby {
             maxPlayer: 5, // max játékosok száma
             rounds: 5, // körök száma
             maxQuestionTime: 30000, // max idő a kérdésre (ms)
-            category: "geom" // Kérdés kategóriája
+            category: "geom", // Kérdés kategóriája
+            gameMode: "default" // Játék mód
         }
     }
 
@@ -107,6 +108,7 @@ class RankedLobby extends Lobby {
             maxPlayer: 2, // max játékosok száma
             rounds: 10, // körök száma
             maxQuestionTime: 15000, // max idő a kérdésre (ms)
+            gameMode: "ranked"
         }
     }
 }

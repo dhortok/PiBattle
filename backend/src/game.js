@@ -6,7 +6,12 @@ class Game {
         this.settings = lobby.settings; // lobby beállítások rögzítése
 
         this.questionIndex = 0;
-        this.questions = allQuestions(this.settings.category, this.settings.rounds); // Legenerálja a kérdéseket
+        // Legenerálja a kérdéseket
+        if (this.settings.gameMode === "survival") {
+            this.questions = allQuestions(this.settings.category, 2);  
+        } else {
+            this.questions = allQuestions(this.settings.category, this.settings.rounds);            
+        }
         this.questionStartTime = null;
         
         this.maxTime = this.settings.maxQuestionTime; // max idő válaszadásra (ms)
@@ -15,14 +20,17 @@ class Game {
         this.state = "waiting";
 
         this.scores = {};
+        this.streak = {};
         this.answers = new Set(); // ki válaszolt már
+        this.survival_out = new Set();
 
         this.ended = false;
 
-        // Mindenkinek kezdetben 0 pont
+        // Mindenkinek kezdetben 0 pont és 0 streak
         for (const player of lobby.players.values()) {
             const key = this.getPlayerKey(player);
             this.scores[key] = 0;
+            this.streak[key] = 0;
         }
     }
 
@@ -52,6 +60,8 @@ class Game {
     }
 
     sendQuestion(io) {
+        // Biztonság kedvéért legyen mégegy kérdés pluszban survival módban
+        if (this.settings.gameMode === "survival") this.questions.concat(allQuestions(this.settings.category, 1));
         const q = this.questions[this.questionIndex];
         
         this.state = "question";
@@ -68,7 +78,8 @@ class Game {
         io.to(this.lobby.id).emit("game:question", {
             question: q.question,
             answers: q.answers,
-            maxTime: this.maxTime
+            maxTime: this.maxTime,
+            questionIndex: this.questionIndex
         });
 
         // Időzítő a kör végére
@@ -93,13 +104,38 @@ class Game {
         const key = this.getPlayerKey(player);
         if (this.answers.has(key)) return;
 
+        if (this.settings.gameMode === "survival" && this.survival_out.has(key)) return;
+
         const q = this.questions[this.questionIndex];
         
         console.log("\n\nSzámoljuk a pontokat neki:\n", player);
         this.answers.add(key);
         const isCorrect = answer === q.correct;
         const timeTaken = Date.now() - this.questionStartTime;
-        const points = isCorrect ? this.pointCalculator(timeTaken) : 0;
+
+        this.streak[key] = isCorrect ? this.streak[key] + 1 : 0;
+
+        let points = 0;
+
+        if (isCorrect) {
+            points += this.settings.gameMode === "survival" ? 100 : this.pointCalculator(timeTaken);
+
+            if (this.settings.gameMode === "extrem") {
+                // streak pontok
+                points += this.streak[key] > 2 ? 50 : 0;
+                // dupla pont a kör végén
+                points += (this.questionIndex === this.settings.rounds - 1) ? this.pointCalculator(timeTaken) : 0;
+                // Első válasz bónusz
+                points += this.answers.size === 0 ? 25 : 0;
+            }
+        }
+
+        // Elminiálja a játékosokat Survival módban
+        if (this.settings.gameMode === "survival" && !isCorrect ) {
+            this.survival_out.add(key);
+            console.log("\nKiesett: " + key + "\n");
+        }
+
         this.scores[key] = (this.scores[key] || 0) + points;
 
         if (this.answers.size === this.getActivePlayerCount()) {
@@ -144,7 +180,9 @@ class Game {
             scoresWithNames.push({
                 socketId: this.getSocketIdByPlayerKey(key),
                 name: player?.nickname || "Unknown",
-                score: this.scores[key]
+                score: this.scores[key],
+                streak: this.streak[key],
+                out: this.survival_out.has(key)
             });
         }
 
@@ -168,6 +206,9 @@ class Game {
         this.questionIndex++;
 
         if (this.questionIndex >= this.questions.length) {
+            this.endGame(io);
+            return;
+        } else if (this.settings.gameMode === "survival" && this.survival_out.size === this.lobby.players.size - 1) {
             this.endGame(io);
             return;
         }
