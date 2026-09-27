@@ -1,0 +1,67 @@
+:root {
+  /* ALAP SZÍNEK*/
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+
+  /* RANG SZÍNEK */
+  --rang-bronze-sima: #cd7f32;
+  --rang-bronze: linear-gradient(135deg, var(--rang-bronze-sima), #8b4513);
+
+  --rang-silver-sima: #bdc3c7;
+  --rang-silver: linear-gradient(135deg, var(--rang-silver-sima), #7f8c8d);
+
+  --rang-gold-sima: #f1c40f;
+  --rang-gold: linear-gradient(135deg, var(--rang-gold-sima), #d4af37);
+
+  --rang-emerald-sima: #2ecc71;
+  --rang-emerald: linear-gradient(135deg, var(--rang-emerald-sima), #27ae60);
+
+  --rang-diamond-sima: #3498db;
+  --rang-diamond: linear-gradient(135deg, var(--rang-diamond-sima), #2980b9);
+
+  --rang-elite-sima: #9b59b6;
+  --rang-elite: linear-gradient(135deg, var(--rang-elite-sima), #8840a9);
+
+  /* LOBBY SZÍNEK */
+  --gamemode-extrem: linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0));
+  --gamemode-survival: linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0));
+
+  /* GAME SZÍNEK */
+  --game-gold-primary: #fde047;
+  --game-gold-secondary: #ca8a04;
+  --game-gold: linear-gradient(
+    135deg,
+    var(--game-gold-primary),
+    var(--game-gold-secondary)
+  );
+  --game-gold-text: #422006;
+
+  --game-silver-primary: #e2e8f0;
+  --game-silver-secondary: #94a3b8;
+  --game-silver: linear-gradient(
+    135deg,
+    var(--game-silver-primary),
+    var(--game-silver-secondary)
+  );
+  --game-silver-text: #1e293b;
+
+  --game-bronze-primary: #fb923c;
+  --game-bronze-secondary: #9a3412;
+  --game-bronze: linear-gradient(
+    135deg,
+    var(--game-bronze-primary),
+    var(--game-bronze-secondary)
+  );
+  --game-bronze-text: #fff;
+
+  /* EGYÉB TULAJDONSÁGOK */
+  --border-radius: 12px;
+  --transition: all 0.2s ease;
+}

@@ -1,458 +1,434 @@
-:root {
-    --color-bg: #0f172a;
-    --color-surface: #1e293b;
-    --color-primary: #6366f1;
-    --color-primary-hover: #4f46e5;
-    --color-success: #22c55e;
-    --color-danger: #ef4444;
-    --color-warning: #f59e0b;
-    --color-text: #f8fafc;
-    --color-text-muted: #94a3b8;
-    --border-radius: 12px;
-    --transition: all 0.2s ease;
-}
-/* Tipográfiai alapok */
-  
 .app-wrapper {
-    height: 100vh;
-    overflow: hidden; /* Nincs görgetés */
-    display: flex;
-    flex-direction: column;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
-    z-index: 1;
-    flex: 1; /* Kitölti a maradék helyet a Navbar alatt */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    }
-
-h1, h2, h3, h4, p {
-    margin-top: 0;
-    line-height: 1.4;
-    letter-spacing: -0.02em; /* Modern, tömörített hatás */
+  z-index: 1;
+  flex: 1; /* Kitölti a maradék helyet a Navbar alatt */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
 }
-  
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+  line-height: 1.4;
+  letter-spacing: -0.02em; /* Modern, tömörített hatás */
+}
+
 /* A Lobby ID vagy Főcímek */
 h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(to right, #818cf8, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
 }
-  
+
 /* Kérdések a játékban (Game.jsx: {question}) */
 h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-text);
-    margin-bottom: 1.5rem;
-    line-height: 1.2;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
 }
-  
+
 /* Alfejezetek (pl. "Leaderboard", "Game Settings") */
 h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem;
-    border-left: 4px solid var(--color-primary);
-    padding-left: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-primary);
+  padding-left: 12px;
 }
-  
+
 /* Általános szöveg, leírások */
 p {
-    font-size: 1rem;
-    color: var(--color-text-muted);
-    line-height: 1.6;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
 }
-  
+
 /* Listák a ranglistához (Game.jsx és Lobby.jsx listák) */
 ul {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
 }
-  
+
 li {
-    background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 8px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: transform 0.2s ease;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease;
 }
-  
+
 li:hover {
-    transform: scale(1.02);
-    background: rgba(255, 255, 255, 0.07);
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.07);
 }
-  
+
 /* Kiemelések (pl. USER: {username}) */
-b, strong {
-    color: var(--color-primary);
-    font-weight: 600;
+b,
+strong {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 body {
-    margin: 0;
-    font-family: 'Inter', system-ui, sans-serif;
-    background-color: var(--color-bg);
-    color: var(--color-text);
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
-  
+
 /* Alap konténer, ami középen tartja a tartalmat */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
-  
+
 /* Kártya stílus a játékhoz, lobbyhoz, auth-hoz */
 .card {
-    background-color: var(--color-surface);
-    border-radius: var(--border-radius);
-    padding: 24px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    margin-bottom: 20px;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
 }
 .global-alert-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7); /* Sötétített háttér */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999; /* Minden felett */
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7); /* Sötétített háttér */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Minden felett */
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
 }
 
 .alert-card {
-    background: #1e293b;
-    padding: 30px;
-    border-radius: 16px;
-    border: 2px solid #ef4444; /* Alapból piros hiba keret */
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 16px;
+  border: 2px solid #ef4444; /* Alapból piros hiba keret */
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-.global-alert-overlay.info .alert-card { border-color: #3b82f6; }
+.global-alert-overlay.info .alert-card {
+  border-color: #3b82f6;
+}
 
-.alert-icon { font-size: 3rem; margin-bottom: 15px; }
+.alert-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
 
 .alert-card p {
-    color: white;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    line-height: 1.5;
+  color: white;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
 
 .alert-card button {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.alert-card button:hover { transform: scale(1.05); }
+.alert-card button:hover {
+  transform: scale(1.05);
+}
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .navbar {
-    z-index: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    background: rgba(30, 41, 59, 0.8);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .nav-logo {
-    font-size: 1.25rem;
-    font-weight: 800;
-    background: linear-gradient(to right, #818cf8, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .btn-nav {
-    background: transparent;
-    border: 1px solid var(--color-primary);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
-.btn-nav:hover { background: var(--color-primary); }
+.btn-nav:hover {
+  background: var(--color-primary);
+}
 
 .btn-nav-logout {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--color-danger);
-    border: 1px solid var(--color-danger);
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-left: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 /* Auth konténer a navigációs sávban */
 .nav-auth {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-title h1 {
+  font-size: 2rem;
 }
 
 /* Felhasználói profil blokk elrendezése */
 .user-profile-container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .user-info-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 /* Felső sor: Név és Szint */
 .user-header-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .username {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
 }
 
 /* Szint jelvény (Badge) */
 .level-badge {
-    background-color: #ffd700;
-    color: #121824; /* Sötét kék/szürke háttérhez igazítva */
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    letter-spacing: 0.5px;
+  background-color: #ffd700;
+  color: #121824; /* Sötét kék/szürke háttérhez igazítva */
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
 }
 
 /* XP Sáv és szöveg csoportosítása */
 .xp-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
 /* Progress Bar háttér */
 .xp-bar-bg {
-    width: 130px;
-    height: 8px;
-    background-color: #1e2640; /* Mélyebb kontrasztos háttér */
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid #3b4252;
+  width: 130px;
+  height: 8px;
+  background-color: #1e2640; /* Mélyebb kontrasztos háttér */
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #3b4252;
 }
 
 /* Progress Bar töltőcsík */
 .xp-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4caf50, #66bb6a); /* Finom színátmenet a zöldnek */
-    border-radius: 4px;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Sima, organikusabb animáció */
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #4caf50,
+    #66bb6a
+  ); /* Finom színátmenet a zöldnek */
+  border-radius: 4px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Sima, organikusabb animáció */
 }
 
 /* XP számérték */
 .xp-text {
-    color: #8892b0;
-    font-size: 0.75rem;
-    font-family: monospace; /* Monospace-szel a számok nem ugrálnak, ha változik az XP */
-    min-width: 80px;
-    text-align: left;
+  color: #8892b0;
+  font-size: 0.75rem;
+  font-family: monospace; /* Monospace-szel a számok nem ugrálnak, ha változik az XP */
+  min-width: 80px;
+  text-align: left;
 }
 
 .badge-group {
-    display: flex;
-    gap: 5px;
-    align-items: center;
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 
 .rank-badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Kategória specifikus színek */
 .rank-bronze {
-    background: linear-gradient(135deg, #cd7f32, #8b4513);
+  background: var(--rang-bronze);
 }
 
 .rank-silver {
-    background: linear-gradient(135deg, #bdc3c7, #7f8c8d);
+  background: var(--rang-silver);
 }
 
 .rank-gold {
-    background: linear-gradient(135deg, #f1c40f, #d4af37);
-    color: #1a1a1a; /* Aranyon jobban néz ki a sötét betű */
-    text-shadow: none;
+  background: var(--rang-gold);
+  color: #1a1a1a; /* Aranyon jobban néz ki a sötét betű */
+  text-shadow: none;
 }
 
 .rank-emerald {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+  background: var(--rang-emerald);
 }
 
 .rank-diamond {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+  background: var(--rang-diamond);
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
 }
 
 .rank-elite {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    animation: elite-glow 2s infinite alternate;
+  background: var(--rang-elite);
+  animation: elite-glow 2s infinite alternate;
 }
 
 @keyframes elite-glow {
-    from { box-shadow: 0 0 5px #9b59b6; }
-    to { box-shadow: 0 0 15px #9b59b6; }
+  from {
+    box-shadow: 0 0 5px var(--rang-elite-sima);
+  }
+  to {
+    box-shadow: 0 0 15px var(--rang-elite-sima);
+  }
 }
 
 /* Gombok egységesítése */
 .btn {
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: var(--transition);
-    width: 100%;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-  
+
 .btn:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    transform: translateY(-2px);
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
 }
-  
+
 .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
-  
-.btn-danger { background-color: var(--color-danger); }
-.btn-danger:hover:not(:disabled) { background-color: #dc2626; }
-  
+
+.btn-danger {
+  background-color: var(--color-danger);
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
 /* Űrlap elemek (Inputok, Sliderek) */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"] {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 16px;
-    background-color: var(--color-bg);
-    border: 1px solid #334155;
-    color: white;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 1rem;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: var(--color-bg);
+  border: 1px solid #334155;
+  color: white;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
 }
-  
+
 .lobbysettings {
-    display: block; 
-    margin-bottom: 5px; 
-    font-weight: 500;
-}
-
-/* A teljes fő tartalom, ami kitölti a Navbar alatti részt */
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* Függőlegesen középre teszi a tartalmat */
-  width: 100%;
-  max-width: 1000px;
-  height: 100%; /* Kitölti a .main-content-et */
-  gap: var(--spacing-lg);
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* Fejléc rész a címmel és alcímmel */
-.home-header {
-  text-align: center;
-  margin-bottom: var(--spacing-md);
-}
-
-.home-header h1 {
-  margin-bottom: 0.5rem;
-  font-size: 3rem; /* Megnövelt méret, hogy biztosan látványos legyen */
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-}
-
-/* A két szekció (Ranked és Privát) elrendezése */
-.home-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Két oszlop asztali gépen */
-  gap: 2rem;
-  width: 100%;
-}
-
-/* Szekciók belső elrendezése */
-.ranked-section, .private-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* A gombokat az aljára tolja, ha eltérő a szöveghossz */
-  min-height: 250px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
 }
 
 /* Privát szoba beviteli csoportja */
@@ -470,7 +446,8 @@ input[type="number"] {
   position: relative;
 }
 
-.divider::before, .divider::after {
+.divider::before,
+.divider::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -479,232 +456,68 @@ input[type="number"] {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.divider::before { left: 0; }
-.divider::after { right: 0; }
+.divider::before {
+  left: 0;
+}
+.divider::after {
+  right: 0;
+}
 
 /* Animáció a belépéshez */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* RESPONSIVE: Mobilon egymás alá teszi a kártyákat, ha nincs elég hely */
-@media (max-width: 768px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    overflow-y: auto; /* Mobilon, ha nagyon kicsi a kijelző, itt engedünk egy pici görgetést */
-    padding-bottom: 20px;
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  .home-header h1 {
-    font-size: 2rem;
-  }
-  
-  .ranked-section, .private-section {
-    min-height: auto;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-
-.lobby-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 20px;
-}
-
-.lobby-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Két oszlopos elrendezés */
-    gap: 20px;
-    flex: 1;
-}
-
-.lobby-id {
-    cursor: pointer;
-    color: var(--color-primary);
-    text-decoration: underline;
-}
-
-/* Popup / Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-card {
-    background: var(--color-surface);
-    padding: 30px;
-    border-radius: var(--border-radius);
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
-}
-
-/* Játékos lista színek */
-.status-ready { color: var(--color-success); font-weight: bold; }
-.status-waiting { color: var(--color-warning); }
-.is-host { border-left: 4px solid gold; }
-
-/* Mobilon egymás alá teszi a két kártyát */
-@media (max-width: 768px) {
-    .lobby-content { grid-template-columns: 1fr; overflow-y: auto; }
-}
-
 
 .xp-box {
-    text-align: center;
-    padding: 20px;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 12px;
-    margin-bottom: 20px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
 /* Auth specifikus kiegészítések */
 .auth-card {
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-    animation: fadeIn 0.4s ease-out;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .msg-error {
-    color: var(--color-danger);
-    background: rgba(239, 68, 68, 0.1);
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    text-align: center;
-    border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid var(--color-danger);
 }
 
 .msg-success {
-    color: var(--color-success);
-    background: rgba(34, 197, 94, 0.1);
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    text-align: center;
-    border: 1px solid var(--color-success);
+  color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid var(--color-success);
 }
 
 /* Input fókusz stílus */
 input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
-
-
-/* Lobby beállítás kártyák */ 
-.lobby-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-  
-.lobby-card-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin: 4px;
-}
-  
-.lobby-card {
-    padding: 8px;
-    border: 2px solid var(--color-surface);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.2s ease;
-}
-  
-.lobby-card:hover {
-    border-color: var(--color-primary-hover);
-}
-  
-/* Amikor a rádiógomb be van jelölve, a mögötte lévő Label változik */
-input:checked + .lobby-card {
-    border-color: var(--color-primary);
-    background-color: var(--color-surface);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
-}
-  
-/* Billentyűzetes fókusz állapot jelzése (Akadálymentesítés!) */
-input:focus-visible + .lobby-card {
-    outline: 2px solid var(--color-primary-hover);
-    outline-offset: 2px;
-}
-
-
-.lobby-card.extrem {
-    align-items: center;
-    text-shadow: 1px 1px 10px rgb(255, 75, 0);
-    transition: none;
-}
-
-.lobby-card.extrem:hover {
-    border: 2px solid transparent;
-    background: 
-        linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) border-box;
-}
-
-
-input:checked + .lobby-card.extrem {
-    border: 2px solid transparent;
-    background: 
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) padding-box,
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(255, 150, 0)) border-box;
-    text-shadow: 1px 1px 10px black;
-}
-
-.lobby-card.survival {
-    align-items: center;
-    text-shadow: 1px 1px 10px rgb(255, 0, 0);
-    transition: none;
-}
-
-.lobby-card.survival:hover {
-    border: 2px solid transparent;
-    background: 
-        linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) border-box;
-}
-
-
-input:checked + .lobby-card.survival {
-    border: 2px solid transparent;
-    background: 
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) padding-box,
-        linear-gradient(135deg, rgb(255, 0, 0), rgb(150, 0, 0)) border-box;
-    text-shadow: 1px 1px 10px black;
-}
-
-
-
-
-
-
-
-
 
 .hidden {
-    display: none;
+  display: none;
 }
-  

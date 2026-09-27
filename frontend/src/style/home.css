@@ -1,0 +1,231 @@
+/* A teljes fő tartalom, ami kitölti a Navbar alatti részt */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Függőlegesen középre teszi a tartalmat */
+  width: 98%;
+  height: 100%; /* Kitölti a .main-content-et */
+  gap: var(--spacing-lg);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Fejléc rész a címmel és alcímmel */
+.home-header {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.home-header h1 {
+  margin-bottom: 0.5rem;
+  font-size: 3rem; /* Megnövelt méret, hogy biztosan látványos legyen */
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* A két szekció (Ranked és Privát) elrendezése */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* Két oszlop asztali gépen */
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  margin: 1rem 2rem;
+}
+
+.home-grid.no-grid {
+  grid-template-columns: 1fr 1fr; /* Nincs oszlop */
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* A gombokat az aljára tolja, ha eltérő a szöveghossz */
+  min-height: 250px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(30, 41, 59, 0.5);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  backdrop-filter: blur(3px);
+  transition: all 0.2s ease-in-out;
+}
+
+.ranked-section:hover {
+  background-color: rgba(130, 91, 28, 0.5);
+}
+
+.private-section:hover {
+  background-color: rgba(39, 35, 114, 0.5);
+}
+
+.ranglista-section {
+  justify-content: flex-start;
+}
+
+.ranglista-section:hover {
+  background-color: rgba(139, 35, 114, 0.5);
+}
+
+.ranglista-table {
+  display: flex;
+  flex: 1;
+}
+
+.ranglista-table .card {
+  flex: 1;
+}
+
+.ranglista-table .card.fade-in {
+  animation: ranglistaFade 1s ease;
+}
+
+@keyframes ranglistaFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card.elite,
+.card.diamond,
+.card.emerald,
+.card.gold,
+.card.silver,
+.card.bronze {
+  padding: 0 0 12px 0;
+  margin: 0;
+}
+
+.card.elite {
+  border-bottom: 4px solid var(--rang-elite-sima);
+  animation: elite-glow 2s infinite alternate;
+}
+
+.card.diamond {
+  border-bottom: 4px solid var(--rang-diamond-sima);
+}
+
+.card.emerald {
+  border-bottom: 4px solid var(--rang-emerald-sima);
+}
+
+.card.gold {
+  border-bottom: 4px solid var(--rang-gold-sima);
+}
+
+.card.silver {
+  border-bottom: 4px solid var(--rang-silver-sima);
+}
+
+.card.bronze {
+  border-bottom: 4px solid var(--rang-bronze-sima);
+}
+
+h4.rang-category {
+  margin: 0px 0px 10px 0;
+  padding: 12px 12px 3px 12px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+
+  letter-spacing: 1px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 900;
+  /*color: var(--color-surface);*/
+}
+
+h4.rang-category.elite {
+  background: var(--rang-elite);
+}
+
+h4.rang-category.diamond {
+  background: var(--rang-diamond);
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+h4.rang-category.emerald {
+  background: var(--rang-emerald);
+}
+
+h4.rang-category.gold {
+  background: var(--rang-gold);
+  color: #1a1a1a;
+  text-shadow: none;
+}
+
+h4.rang-category.silver {
+  background: var(--rang-silver);
+}
+
+h4.rang-category.bronze {
+  background: var(--rang-bronze);
+}
+
+.ranglista-row {
+  display: flex;
+  /* justify-content: space-between; */
+  /* padding: 12px; */
+  margin: 0 12px 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 0.1rem solid #777;
+}
+
+.ranglista-row * {
+  padding: 8px;
+
+  display: flex;
+  align-items: center;
+  width: 80px;
+}
+
+.ranglista-pos {
+  width: 0;
+  border-radius: 8px 0 0 8px;
+  background-color: #777;
+  width: 20px;
+  border-radius: 4px;
+  justify-content: center;
+}
+
+.ranglista-nev {
+  justify-content: flex-start;
+  width: 75%;
+}
+
+.ranglista-badge {
+  margin: 5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  justify-content: center;
+}
+
+/* RESPONSIVE: Mobilon egymás alá teszi a kártyákat, ha nincs elég hely */
+@media (max-width: 1000px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    overflow-y: auto; /* Mobilon, ha nagyon kicsi a kijelző, itt engedünk egy pici görgetést */
+    padding-bottom: 20px;
+  }
+
+  .home-header h1 {
+    font-size: 2rem;
+  }
+
+  .home-card {
+    min-height: auto;
+  }
+}

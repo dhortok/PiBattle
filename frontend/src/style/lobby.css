@@ -1,0 +1,149 @@
+.lobby-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 20px;
+}
+
+.lobby-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Két oszlopos elrendezés */
+  gap: 20px;
+  flex: 1;
+}
+
+.lobby-id {
+  cursor: pointer;
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* Popup / Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: var(--color-surface);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Játékos lista színek */
+.status-ready {
+  color: var(--color-success);
+  font-weight: bold;
+}
+.status-waiting {
+  color: var(--color-warning);
+}
+.is-host {
+  border-left: 4px solid gold;
+}
+
+/* Mobilon egymás alá teszi a két kártyát */
+@media (max-width: 768px) {
+  .lobby-content {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}
+
+/* Lobby beállítás kártyák */
+.lobby-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.lobby-card-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px;
+}
+
+.lobby-card {
+  padding: 8px;
+  border: 2px solid var(--color-surface);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.lobby-card:hover {
+  border-color: var(--color-primary-hover);
+}
+
+/* Amikor a rádiógomb be van jelölve, a mögötte lévő Label változik */
+input:checked + .lobby-card {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+/* Billentyűzetes fókusz állapot jelzése (Akadálymentesítés!) */
+input:focus-visible + .lobby-card {
+  outline: 2px solid var(--color-primary-hover);
+  outline-offset: 2px;
+}
+
+.lobby-card.extrem {
+  align-items: center;
+  text-shadow: 1px 1px 10px rgb(255, 75, 0);
+  transition: none;
+}
+
+.lobby-card.extrem:hover {
+  border: 2px solid transparent;
+  background: linear-gradient(var(--color-surface), var(--color-surface))
+      padding-box,
+    var(--gamemode-extrem) border-box;
+}
+
+input:checked + .lobby-card.extrem {
+  border: 2px solid transparent;
+  background: var(--gamemode-extrem) padding-box,
+    var(--gamemode-extrem) border-box;
+  text-shadow: 1px 1px 10px black;
+}
+
+.lobby-card.survival {
+  align-items: center;
+  text-shadow: 1px 1px 10px rgb(255, 0, 0);
+  transition: none;
+}
+
+.lobby-card.survival:hover {
+  border: 2px solid transparent;
+  background: linear-gradient(var(--color-surface), var(--color-surface))
+      padding-box,
+    var(--gamemode-survival) border-box;
+}
+
+input:checked + .lobby-card.survival {
+  border: 2px solid transparent;
+  background: var(--gamemode-survival) padding-box,
+    var(--gamemode-survival) border-box;
+  text-shadow: 1px 1px 10px black;
+}

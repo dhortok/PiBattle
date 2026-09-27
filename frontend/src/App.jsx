@@ -91,9 +91,18 @@ function App() {
             <FallingMath />
 
             <nav className="navbar">
+                <div className="nav-title">
+                    <h1>PiBattle</h1>
+                </div>
+                
                 <div className="nav-auth">
                     {user ? (
                         <div className="user-profile-container">
+                            <button className="btn-nav-logout" onClick={() => {
+                                logout();
+                                socket.disconnect();
+                            }}>Logout</button>
+
                             <div className="user-info-block">
                                 {/* Felső sor: Név és Szint jelvény */}
                                 <div className="user-header-row">
@@ -117,11 +126,6 @@ function App() {
                                     </small>
                                 </div>
                             </div>
-                            
-                            <button className="btn-nav-logout" onClick={() => {
-                                logout();
-                                socket.disconnect();
-                            }}>Logout</button>
                         </div>
                     ) : (
                         <div className="auth-buttons">

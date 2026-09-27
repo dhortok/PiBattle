@@ -4,6 +4,7 @@ const socketio = require('socket.io');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
+const rank = require("../common/rank");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,6 +69,21 @@ io.use((socket, next) => {
 // Handle client connections
 io.on('connection', (socket) => {
     console.log('New client connected: ', socket.id, "; \nsessionId: ", socket.sessionId);
+
+    socket.on('rank:list', async () => {
+        const rankList = await dbManager.getRankList();
+        const rankByCategory = {};
+        
+        rankList.sort((a, b) => {return b.rang - a.rang})
+
+        rankList.forEach(p => {
+            const pRank = rank.rankCalculator(p.rang);
+            rankByCategory[pRank.category] ??= [];
+            rankByCategory[pRank.category].push(p);
+        });
+
+        socket.emit("rank:updateList", rankByCategory);
+    })
 
     socket.on('lobby:create', ({ name }) => {
         console.log(socket.user);

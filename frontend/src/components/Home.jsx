@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext";
 import { useAlert } from "../context/AlertContext";
+import Ranglista from "../components/Ranglista";
 
 export default function Home() {
 
@@ -11,6 +12,17 @@ export default function Home() {
     const [input, setInput] = useState("");
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [rankList, setRankList] = useState({});
+
+    useEffect(() => {
+        socket.emit('rank:list');
+        
+        const handleRankList = (data) => {
+            setRankList(data);
+        }
+
+        socket.on('rank:updateList', handleRankList);
+    }, [])
 
     const createLobby = () => {
         socket.emit("lobby:create", { name });
@@ -35,13 +47,9 @@ export default function Home() {
 
     return (
         <div className="home-container">
-            <header className="home-header">
-                <h1>Home Screen</h1>
-                <p>Matek PvP - készen állsz?</p>
-            </header>
-
-            <div className="home-grid">
-                <section className="card ranked-section">
+            <div className={`home-grid ${!user ? "no-grid" : ""}`}>
+                {user && (
+                <section className="home-card ranked-section">
                     <h3>🏆 Ranked mód</h3>
                     <p>Mérkőzz meg hasonló tudású játékosokkal!</p>
                     <button className="btn btn-primary"
@@ -51,8 +59,9 @@ export default function Home() {
                         {loading ? "Keresés..." : "Játék keresése"}
                 </button>
                 </section>
+                )}
 
-                <section className="card private-section">
+                <section className="home-card private-section">
                     <h3>🔒 Privát szoba</h3>
                     <div className="input-group">
                         {!user && (
@@ -81,6 +90,11 @@ export default function Home() {
                         Csatlakozás a szobához
                         </button>
                     </div>
+                </section>
+
+                <section className="home-card ranglista-section">
+                    <h3>⭐ Ranglista</h3>
+                    <Ranglista rankList={rankList}></Ranglista>
                 </section>
 
             </div>
