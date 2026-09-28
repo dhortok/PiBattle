@@ -42,7 +42,7 @@
   justify-content: space-between; /* A gombokat az aljára tolja, ha eltérő a szöveghossz */
   min-height: 250px;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background-color: rgba(30, 41, 59, 0.5);
+  background-color: var(--color-card-bg);
   border-radius: var(--border-radius);
   padding: 24px;
   backdrop-filter: blur(3px);

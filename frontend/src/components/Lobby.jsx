@@ -20,6 +20,7 @@ export default function Lobby() {
     const [isRanked, setIsRanked] = useState(false); // Ezt a szervernek küldenie kell az update-ben
     const [isRankReady, setIsRankReady] = useState(false); // Ezt a szervernek küldenie kell az update-ben
     const [gameStarted, setGameStarted] = useState(false);
+    const [canStart, setCanStart] = useState(false);
     const [settings, setSettings] = useState({
         maxPlayer: 5,
         rounds: 5,
@@ -41,6 +42,7 @@ export default function Lobby() {
             setPlayers(data.players);
             setHost(data.host);
             setIsRanked(data.isRanked || false);
+            if (data.canStart) setCanStart(data.canStart);
             if (data.settings) setSettings(data.settings);
         };
 
@@ -92,43 +94,52 @@ export default function Lobby() {
     return (
         <div className="lobby-container">
             <div className="lobby-header">
-                {isRanked ? (
-                    <h2 style={{ color: "#ffd700" }}>🛡️ Ranked Lobby - Ellenfelek keresése...</h2>
-                ) : (
+                {!isRanked && (
                     <h2>Szoba: <span className="lobby-id" onClick={copyLobbyId} title="Másolás">{lobbyId} 📋</span></h2>
                 )}
+                <h2>Játékmenet: <strong className={settings.gameMode === "extrem" ? "extrem" : settings.gameMode === "survival" ? "survival" : ""}>
+                    {settings.gameMode === "default" ? "Klasszikus" : settings.gameMode === "extrem" ? "EXTRÉM 🔥" : "Túlélő 💖"}
+                </strong></h2>
+                <p><strong>{settings.gameMode !== "survival" ? settings.rounds : "∞"}</strong><br />kör</p>
+                <p><strong>{settings.maxQuestionTime / 1000}</strong> mp<br />válaszadásra</p>
+                <p>Max. <strong>{settings.maxPlayer}</strong><br />játékos</p>
+                <p><strong>{categories[settings.category]}</strong><br />kérdések</p>
             </div>
 
-            <div className="lobby-content">
-                {/* BAL OLDAL: Játékosok */}
-                <PlayerList
-                    players={players}
-                    host={host}
-                    maxPlayer={settings.maxPlayer}
-                    isRanked={isRanked}
-                    isRankReady={isRankReady}
-                    lobbyId={lobbyId}
-                    socket={socket}
-                />
+            
+            {/* Játékosok */}
+            <PlayerList
+                players={players}
+                host={host}
+                maxPlayer={settings.maxPlayer}
+                isRanked={isRanked}
+                isRankReady={isRankReady}
+            />
 
-                {/* JOBB OLDAL: Játékszabályok nézete */}
+            <div className="lobby-actions">
+                <button className="btn btn-danger" onClick={() => socket.emit("lobby:leave", lobbyId)}>
+                    Kilépés
+                </button>
+                {isHost && ( 
+                    <button className="btn btn-outline" onClick={() => setShowSettings(true)}>Beállítások módosítása</button> 
+                )}                
                 {!isRanked ? (
-                <div className="card settings-view-card">
-                    <h3>⚙️ Játékszabályok</h3>
-                    <div className="settings-info">
-                        <p><strong>Játékmód:</strong> {settings.gameMode === "default" ? "Klasszikus" : settings.gameMode === "extrem" ? "EXTRÉM 🔥" : "Túlélő ❤"}</p>
-                        <p><strong>Körök száma:</strong> {settings.gameMode !== "survival" ? settings.rounds : "∞"}</p>
-                        <p><strong>Időkeret:</strong> {settings.maxQuestionTime / 1000} másodperc</p>
-                        <p><strong>Max játékos:</strong> {settings.maxPlayer}</p>
-                        <p><strong>Kategória:</strong> {categories[settings.category]}</p>
-                    </div>
-                    {isHost && (
-                        <>
-                            <button className="btn btn-outline" onClick={() => setShowSettings(true)}>Beállítások módosítása</button>
-                            <button className="btn btn-success" onClick={() => socket.emit("game:start", lobbyId)}>Játék indítása</button>
-                        </>
-                    )}
-                </div>) : (null)}
+                    <button className="btn btn-primary" onClick={() => socket.emit("player:ready", lobbyId)}>
+                    Kész vagyok
+                    </button>
+                ) : (
+                    <h2 style={{ color: "#ffd700" }}>🛡️ Ranked Lobby - Ellenfelek keresése...</h2>
+                )}
+                {isHost && ( 
+                    <button 
+                        className="btn btn-success" 
+                        title={canStart ? "" : "Nem minden játékos áll készen."} 
+                        disabled={!canStart} 
+                        onClick={() => socket.emit("game:start", lobbyId)}
+                    >
+                        Játék indítása
+                    </button> 
+                )}
             </div>
 
             {/* POPUP MODAL (Csak a Hostnak) */}

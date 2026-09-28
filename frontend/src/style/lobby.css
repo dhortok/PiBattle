@@ -1,21 +1,72 @@
 .lobby-container {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   height: 100%;
+  width: 95%;
   gap: 20px;
 }
 
-.lobby-content {
+.lobby-header {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(3px);
+  border-radius: var(--border-radius);
+  margin-top: 10px;
+  padding: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Két oszlopos elrendezés */
-  gap: 20px;
-  flex: 1;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.lobby-header * {
+  text-align: center;
+  line-height: 20px;
+  margin: 0;
+}
+
+.lobby-header h2 {
+  padding-top: 5px;
+  line-height: 30px;
+  grid-column: span 2;
+}
+
+.lobby-header h2 strong {
+  font-weight: 700;
+}
+
+.lobby-header h2 strong.extrem {
+  background: var(--gamemode-extrem);
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+}
+.lobby-header h2 strong.survival {
+  background: var(--gamemode-survival);
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+  color: var(--color-text);
 }
 
 .lobby-id {
   cursor: pointer;
   color: var(--color-primary);
   text-decoration: underline;
+}
+
+.players-card h3 {
+  border: none;
+  text-align: center;
+}
+
+.player-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player-list li {
+  margin: 5px 10px;
+  gap: 25px;
 }
 
 /* Popup / Modal */
@@ -51,14 +102,6 @@
 }
 .is-host {
   border-left: 4px solid gold;
-}
-
-/* Mobilon egymás alá teszi a két kártyát */
-@media (max-width: 768px) {
-  .lobby-content {
-    grid-template-columns: 1fr;
-    overflow-y: auto;
-  }
 }
 
 /* Lobby beállítás kártyák */
@@ -146,4 +189,23 @@ input:checked + .lobby-card.survival {
   background: var(--gamemode-survival) padding-box,
     var(--gamemode-survival) border-box;
   text-shadow: 1px 1px 10px black;
+}
+
+.lobby-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+
+  margin-bottom: 10px;
+}
+
+.lobby-actions button {
+  margin: 0;
+}
+
+/* Mobilnézet */
+@media (max-width: 768px) {
+  .lobby-header {
+    grid-template-columns: 1fr 1fr;
+  }
 }

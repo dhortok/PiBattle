@@ -58,7 +58,7 @@ class Lobby {
     }
 
     canStart() {
-        if (this.players.size < 1) return false;
+        if (this.players.size < 2) return false;
     
         return [...this.players.values()].every(p => p.ready);
     }

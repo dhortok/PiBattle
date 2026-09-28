@@ -89,15 +89,14 @@ io.on('connection', (socket) => {
         console.log(socket.user);
         const lobby = lobbyManager.createLobby(socket, name, dbManager);
 
-        console.log(lobby);
-
         socket.join(lobby.id);
         socket.emit("lobby:created", lobby.id);
 
         setTimeout(() => {
             io.to(lobby.id).emit("lobby:update", {
                 players: lobby.getPlayerList(),
-                host: lobby.host
+                host: lobby.host,
+                canStart: lobby.canStart()
             });
         }, 250);
 
@@ -105,11 +104,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('lobby:join', ({ lobbyCode, name }) => {
-        console.log(lobbyCode)
-
         const lobby = lobbyManager.joinLobby(lobbyCode, socket, name);
-
-        console.log(lobby);
 
         if (!lobby) {
             socket.emit("lobby:error", "The lobby was not found, or it was full!");
@@ -153,8 +148,6 @@ io.on('connection', (socket) => {
         const lobby = lobbyManager.lobbies.get(lobbyId);
         if (!lobby) return;
 
-        console.log(lobby);
-
         lobby.removePlayer(socket);
 
         socket.leave(lobbyId);
@@ -184,7 +177,8 @@ io.on('connection', (socket) => {
         setTimeout(() => {
             io.to(lobbyId).emit("lobby:update", {
                 players: lobby.getPlayerList(),
-                host: lobby.host
+                host: lobby.host,
+                canStart: lobby.canStart()
             });
         }, 250);
     });

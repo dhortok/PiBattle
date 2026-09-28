@@ -1,6 +1,7 @@
 :root {
   /* ALAP SZÍNEK*/
   --color-bg: #0f172a;
+  --color-card-bg: rgba(30, 41, 59, 0.5);
   --color-surface: #1e293b;
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
