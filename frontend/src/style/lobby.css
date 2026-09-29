@@ -103,6 +103,9 @@
 .is-host {
   border-left: 4px solid gold;
 }
+.not-online {
+  filter: grayscale(100%);
+}
 
 /* Lobby beállítás kártyák */
 .lobby-sr-only {

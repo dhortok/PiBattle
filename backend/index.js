@@ -145,22 +145,21 @@ io.on('connection', (socket) => {
     });
 
     socket.on("lobby:leave", (lobbyId) => {
-        const lobby = lobbyManager.lobbies.get(lobbyId);
+        const lobby = lobbyManager.leaveLobby(socket);
         if (!lobby) return;
-
-        lobby.removePlayer(socket);
 
         socket.leave(lobbyId);
 
         socket.emit("lobby:left");
-    
-        setTimeout(() => {
-            io.to(lobbyId).emit("lobby:update", {
-                players: lobby.getPlayerList(),
-                host: lobby.host
-            });
-        }, 250);
 
+        if (lobby.players.size > 0) {        
+            setTimeout(() => {
+                io.to(lobbyId).emit("lobby:update", {
+                    players: lobby.getPlayerList(),
+                    host: lobby.host
+                });
+            }, 250);
+        }
     });
 
 
@@ -211,31 +210,42 @@ io.on('connection', (socket) => {
 
     socket.on("lobby:reconnect", (lobbyId) => {
         const lobby = lobbyManager.lobbies.get(lobbyId);
-        if (!lobby) return;
+        if (!lobby) return socket.emit("lobby:error", "A lobby már nem létezik.");
     
         const player = [...lobby.players.values()].find(p =>
             (p.userId && p.userId === socket.user?.userId) ||
             (p.sessionId && p.sessionId === socket.sessionId)
         );
     
-        if (!player) return;
+        if (!player) socket.emit("lobby:error", "Nem található mentett munkamenet ebben a lobbyban.");
+
+        const oldSocketId = player.socketId;
     
         // 🔁 socketId frissítés
-        lobby.players.delete(player.socketId);
+        lobby.players.delete(oldSocketId);
     
         player.socketId = socket.id;
         lobby.players.set(socket.id, player);
+
+        // Újra online!
+        player.isOnline = true;
+        
+        // Host check
+        if (lobby.host === oldSocketId) {
+            lobby.host = socket.id;
+        }
     
         socket.join(lobbyId);
     
         socket.emit("lobby:joined", lobbyId);
 
-        setTimeout(() => {
-            io.to(lobbyId).emit("lobby:update", {
-                players: lobby.getPlayerList(),
-                host: lobby.host
-            });
-        }, 250);
+        io.to(lobbyId).emit("lobby:update", {
+            players: lobby.getPlayerList(),
+            host: lobby.host,
+            settings: lobby.settings
+        });
+
+        if (lobby.state === "playing" && lobby.game) lobby.game.reconnectUser(socket);
    
     });
 
@@ -286,15 +296,28 @@ io.on('connection', (socket) => {
 
     // Handle client disconnection
     socket.on('disconnect', () => {
-        
-        const lobby = lobbyManager.leaveLobby(socket);
-
+        const lobby = lobbyManager.getLobbyBySocket(socket);
         if (!lobby) return;
+
+        const player = lobby.players.get(socket.id);
+        if (player) player.isOnline = false;
 
         io.to(lobby.id).emit("lobby:update", {
             players: lobby.getPlayerList(),
             host: lobby.host
         });
+
+        // 30mp a recconect lehetőségére
+        setTimeout(() => {
+            if (player && !player.isOnline) {
+                lobbyManager.leaveLobby(socket);
+                
+                io.to(lobby.id).emit("lobby:update", {
+                    players: lobby.getPlayerList(),
+                    host: lobby.host
+                });
+            }
+        }, 30000);
 
         console.log('Client disconnected');
     });

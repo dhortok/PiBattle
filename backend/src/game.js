@@ -324,6 +324,68 @@ class Game {
             console.error("Hiba a rank mentésekor: ", err);
         }
     }
+
+    reconnectUser(socket) {
+        const q = this.questions[this.questionIndex];
+
+        let scoresWithNames = [];
+
+        switch (this.state) {
+            case "question":
+                socket.emit("game:question", {
+                    question: q.question,
+                    answers: q.answers,
+                    maxTime: this.maxTime,
+                    questionIndex: this.questionIndex
+                });
+                break;
+            
+            case "result":
+                for (let player of this.lobby.players.values()) {
+                    let key = this.getPlayerKey(player);
+        
+                    scoresWithNames.push({
+                        socketId: this.getSocketIdByPlayerKey(key),
+                        name: player?.nickname || "Unknown",
+                        score: this.scores[key],
+                        streak: this.streak[key],
+                        out: this.survival_out.has(key)
+                    });
+                }
+        
+                // rendezés csökkenő sorrendbe score alapján
+                scoresWithNames.sort((a, b) => b.score - a.score);
+
+                socket.emit("game:result", {
+                    correct: q.correct,
+                    scores: scoresWithNames
+                });
+                break;
+
+            case "ended":
+                for (let player of this.lobby.players.values()) {
+                    let key = this.getPlayerKey(player);
+                    const playerXP = xpMap[key] || 0;
+
+                    scoresWithNames.push({
+                        socketId: this.getSocketIdByPlayerKey(key),
+                        name: player?.nickname || "Unknown",
+                        score: this.scores[key],
+                        xp: playerXP
+                    });
+                }
+                
+                // rendezés csökkenő sorrendbe score alapján
+                scoresWithNames.sort((a, b) => b.score - a.score);
+
+                socket.emit("game:end", scoresWithNames);
+
+                break;
+                
+            default:
+                break;
+        }
+    }
     
 }
 

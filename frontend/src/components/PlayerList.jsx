@@ -4,7 +4,7 @@ export default function PlayerList({ players, host, maxPlayer, isRanked, isRankR
             <h3>👥 Játékosok ({players.length}/{maxPlayer})</h3>
             <ul className="player-list">
             {players.map((p) => (
-                <li key={p.socketId} className={p.socketId === host ? "is-host" : ""}>
+                <li key={p.socketId} className={`${p.socketId === host ? "is-host" : ""} ${!p.isOnline ? "not-online" : ""}`}>
                 <span>{p.socketId === host && "👑"} {p.nickname}</span>
                 {!isRanked && (
                     <span className={p.ready ? "status-ready" : "status-waiting"}>

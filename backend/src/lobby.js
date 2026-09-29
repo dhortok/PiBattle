@@ -43,7 +43,8 @@ class Lobby {
             sessionId: socket.sessionId,
             userId: socket.user?.userId || null,
             nickname,
-            ready: false
+            ready: false,
+            isOnline: true
         });
     
         return true;
@@ -146,12 +147,10 @@ class LobbyManager {
         return lobby;
     }
 
-    leaveLobby(socket) {
+    getLobbyBySocket(socket) {
         // Keresés a sima lobbyk között
         for (const lobby of this.lobbies.values()) {
             if (lobby.players.has(socket.id)) {
-                lobby.removePlayer(socket);
-                if (lobby.players.size === 0) this.lobbies.delete(lobby.id);
                 return lobby;
             }
         }
@@ -159,16 +158,29 @@ class LobbyManager {
         // Keresés a ranked lobbyk között
         for (const lobby of this.ranked.values()) {
             if (lobby.players.has(socket.id)) {
-                lobby.removePlayer(socket);
-                
-                // Most egyelőre csak töröljük a lobbyt, ha kiürül.
-                if (lobby.players.size === 0 || lobby.state === "waiting") {
-                    this.ranked.delete(lobby.id);
-                }
                 return lobby;
             }
         }
         return null;
+    }
+
+    leaveLobby(socket) {
+        const lobby = this.getLobbyBySocket(socket);
+        if (lobby === null) return null;
+
+        lobby.removePlayer(socket);
+
+        if (lobby.players.size === 0) {
+            if (lobby.type === "ranked") {
+                this.ranked.delete(lobby.id);
+            } else {
+                this.lobbies.delete(lobby.id);
+            }
+        } else if (lobby.type === "ranked" && lobby.state === "waiting") {
+            this.ranked.delete(lobby.id);
+        }
+
+        return lobby;
     }
 
     generateLobbyId() {
