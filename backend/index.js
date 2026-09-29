@@ -173,6 +173,30 @@ io.on('connection', (socket) => {
     
         player.ready = !player.ready;
     
+        // Szinkronizáljuk
+        setTimeout(() => {
+            io.to(lobbyId).emit("lobby:update", {
+                players: lobby.getPlayerList(),
+                host: lobby.host,
+                canStart: lobby.canStart(),
+                settings: lobby.settings
+            });
+        }, 250);
+    });
+
+
+    // A host mindenkit visszaküld a lobbyba a játék után
+    socket.on('lobby:return', (lobbyId) => {
+        const lobby = lobbyManager.lobbies.get(lobbyId);
+
+        if (!lobby) return;
+        if (lobby.host !== socket.id) return;
+        if (lobby.state !== "playing") return;
+
+        lobby.endGame();
+
+        io.to(lobbyId).emit("lobby:returned");
+        
         setTimeout(() => {
             io.to(lobbyId).emit("lobby:update", {
                 players: lobby.getPlayerList(),

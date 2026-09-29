@@ -48,12 +48,16 @@ export default function Lobby() {
 
         const handleStart = () => setGameStarted(true);
 
+        // Visszatérés a lobby nézetbe
+        const handleGameEnd = () => setGameStarted(false);
+
         const handleRankReady = () => setIsRankReady(true);
 
         const handleLobbyError = () => navigate("/");
 
         socket.on("lobby:update", handleUpdate);
         socket.on("game:start", handleStart);
+        socket.on("lobby:returned", handleGameEnd);
         socket.on("rank:ready", handleRankReady);
         socket.on("lobby:error", handleLobbyError);
 
@@ -67,9 +71,6 @@ export default function Lobby() {
 
     const startGame = () => socket.emit("game:start", lobbyId);
     const leaveLobby = () => socket.emit("lobby:leave", lobbyId);
-
-    // Visszatérés a lobby nézetbe
-    const handleGameEnd = () => setGameStarted(false);
 
     const isHost = socket.id === host;
 
@@ -86,10 +87,7 @@ export default function Lobby() {
       };
 
     if (gameStarted) return (
-        <QuizGame 
-            lobbyId={lobbyId} 
-            onReturnToLobby={() => setGameStarted(false)}
-        />
+        <QuizGame lobbyId={lobbyId} />
     );
     return (
         <div className="lobby-container">

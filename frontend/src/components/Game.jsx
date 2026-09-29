@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../context/AuthContext";
 
-export default function QuizGame({ lobbyId, onReturnToLobby }) {
+export default function QuizGame({ lobbyId }) {
     const [gameState, setGameState] = useState("waiting");
     const [question, setQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
@@ -16,6 +16,7 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
     const [progress, setProgress] = useState(100);
     const { user } = useAuth();
     const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [isHost, setIsHost] = useState(false);
 
     const [timeLeft, setTimeLeft] = useState(0);
     const [maxTime, setMaxTime] = useState(10000);
@@ -62,7 +63,8 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
 
         const handleEnd = (data) => {
             setGameState("end");
-            setScores(data);
+            setScores(data.scores);
+            setIsHost(socket.id === data.host);
             setTimeout(() => setPodiumStep(1), 1000); // 3. hely
             setTimeout(() => setPodiumStep(2), 2200); // 2. hely
             setTimeout(() => setPodiumStep(3), 3400); // 1. hely
@@ -88,7 +90,9 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
 
     
     const returnLobby = () => {
-        if (onReturnToLobby) onReturnToLobby();
+        if (isHost) {
+            socket.emit("lobby:return", lobbyId);
+        };
     };
 
 
@@ -194,7 +198,11 @@ export default function QuizGame({ lobbyId, onReturnToLobby }) {
                     <div className="xp-box">
                         {user ? `XP szerzve: +${scores.find(p => p.socketId === socket.id)?.xp}` : "XP-t csak bejelentkezve kaphatsz!"}
                     </div>
-                    <button className="btn btn-primary" onClick={returnLobby}>Vissza a Lobbyba</button>
+                    {isHost ? (
+                        <button className="btn btn-primary" onClick={returnLobby}>Vissza a Lobbyba</button>
+                    ) : (
+                        <p>Várakozás a hostra...</p>
+                    )}
                 </div>
             )}
         </div>

@@ -249,7 +249,10 @@ class Game {
             this.saveRank();
         }
 
-        io.to(this.lobby.id).emit("game:end", scoresWithNames);
+        io.to(this.lobby.id).emit("game:end", {
+            scores: scoresWithNames,
+            host: this.lobby.host
+        });
     }
 
     // XP számolás
@@ -385,6 +388,17 @@ class Game {
             default:
                 break;
         }
+    }
+
+    destroy() {        
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+
+        this.ended = true;
+
+        this.lobby = null;
     }
     
 }

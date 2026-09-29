@@ -75,6 +75,19 @@ class Lobby {
 
         return this.game;
     }
+
+    endGame() {
+        if (this.game) {
+            this.game.destroy();
+            this.game = null;
+        }
+
+        for (const player of this.players.values()) {
+            player.ready = false;
+        }
+
+        this.state = "waiting";
+    }
 }
 
 
