@@ -81,9 +81,15 @@ export default function Lobby() {
     };
 
     const handleSaveSettings = (newSettings) => {
-        setSettings(newSettings);
-        socket.emit("lobby:updateSettings", { lobbyId, settings: newSettings });
-        setShowSettings(false);
+        if (newSettings.rounds < 3 || newSettings.rounds > 20) {
+            showAlert("Nem érvényes körszámot adtál meg! A körök száma minimum 3, maximum 20!");
+        } else if (newSettings.maxQuestionTime < 10000 || newSettings.maxQuestionTime > 90000) {
+            showAlert("Nem érvényes körszámot adtál meg! A válaszadás idő minimum 10mp, maximum 90mp!");
+        } else {
+            setSettings(newSettings);
+            socket.emit("lobby:updateSettings", { lobbyId, settings: newSettings });
+            setShowSettings(false);
+        }
       };
 
     if (gameStarted) return (

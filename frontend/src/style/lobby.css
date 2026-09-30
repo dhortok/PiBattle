@@ -122,9 +122,26 @@
 
 .lobby-card-selector {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 4px;
   margin: 4px;
+  padding: 8px;
+
+  border-radius: var(--border-radius);
+  border-bottom: 2px solid var(--color-primary);
+  border-left: 2px solid var(--color-primary);
+}
+
+.lobby-card-selector:hover {
+  border-bottom: 2px solid var(--color-primary-hover);
+  border-left: 2px solid var(--color-primary-hover);
+}
+
+.lobby-card-inputs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .lobby-card {
@@ -152,6 +169,41 @@ input:checked + .lobby-card {
 input:focus-visible + .lobby-card {
   outline: 2px solid var(--color-primary-hover);
   outline-offset: 2px;
+}
+
+/* Az egyedi kártyán belüli számbeviteli mező stílusa */
+input[type="number"].custom-round-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+
+  width: 100%;
+  max-width: 60px;
+
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes costumBlinking {
+    from {border-color: var(--color-primary-hover);}
+    to {border-color: transparent;}
+}
+
+.lobby-card.custom-card:has(input[type="number"].custom-round-input:focus) {
+    animation: costumBlinking 0.5s ease-in 0s infinite alternate;
+}
+
+/* Opcionális: a böngészők alapértelmezett kis nyilainak elrejtése a szám inputról */
+.custom-round-input::-webkit-outer-spin-button,
+.custom-round-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.custom-round-input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .lobby-card.extrem {

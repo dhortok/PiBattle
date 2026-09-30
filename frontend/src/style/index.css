@@ -431,6 +431,9 @@ input[type="number"] {
   box-sizing: border-box;
   font-size: 1rem;
 }
+input[type="range"] {
+  width: 90%;
+}
 
 .lobbysettings {
   display: block;
