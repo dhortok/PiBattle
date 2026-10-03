@@ -194,6 +194,18 @@ export default function SettingsModal({ initialSettings, onSave, onClose }) {
             <div className="lobby-card-selector">
                 <label><b>Kategória:</b></label>
                 <div className="lobby-card-inputs">
+                    <div key="random" className="radio-group">
+                        <input
+                            type="radio"
+                            name="category"
+                            id="random"
+                            value="random"
+                            checked={"random" === localSettings.category}
+                            onChange={() => setLocalSettings({ ...localSettings, category: "random" })}
+                            className="lobby-sr-only"
+                        />
+                        <label htmlFor="random" className="lobby-card">🔀 RANDOM</label>
+                    </div>
                     {categoryArray.map(([key, value]) => (
                         <div key={key} className="radio-group">
                         <input

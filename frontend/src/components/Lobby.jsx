@@ -107,7 +107,7 @@ export default function Lobby() {
                 <p><strong>{settings.gameMode !== "survival" ? settings.rounds : "∞"}</strong><br />kör</p>
                 <p><strong>{settings.maxQuestionTime / 1000}</strong> mp<br />válaszadásra</p>
                 <p>Max. <strong>{settings.maxPlayer}</strong><br />játékos</p>
-                <p><strong>{categories[settings.category]}</strong><br />kérdések</p>
+                <p><strong>{settings.category === "random" ? "🔀 RANDOM" : categories[settings.category]}</strong><br />kérdések</p>
             </div>
 
             

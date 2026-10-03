@@ -188,12 +188,16 @@ input[type="number"].custom-round-input {
 }
 
 @keyframes costumBlinking {
-    from {border-color: var(--color-primary-hover);}
-    to {border-color: transparent;}
+  from {
+    border-color: var(--color-primary-hover);
+  }
+  to {
+    border-color: transparent;
+  }
 }
 
 .lobby-card.custom-card:has(input[type="number"].custom-round-input:focus) {
-    animation: costumBlinking 0.5s ease-in 0s infinite alternate;
+  animation: costumBlinking 0.5s ease-in 0s infinite alternate;
 }
 
 /* Opcionális: a böngészők alapértelmezett kis nyilainak elrejtése a szám inputról */

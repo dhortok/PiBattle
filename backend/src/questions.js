@@ -62,31 +62,23 @@ function allQuestions(category, maxQuestion){
 }
 
 function generateQuestions(category) {
-
-    switch (category) {
-        case "algb": return genAlgbQuestion(); //algebra
-        
-        case "geom": return genGeomQuestion(); //geometria
-        
-        case "func":     //függvények
-            
-            break;
-        
-        case "sets":     //halmazok
-            
-            break;
-        
-        case "komb":     //kombinatorika
-            
-            break;
-        
-        case "prob": return genProbQuestion(); //valőszínűségszámítás
-    
-        default:
-            break;
+    const categories = {
+        "algb": genAlgbQuestion, //algebra
+        "geom": genGeomQuestion, //geometria
+        //"func": genFuncQuestion, //függvények
+        //"sets": genSetsQuestion, //halmazok
+        //"komb": genKombQuestion, //kombinatorika
+        "prob": genProbQuestion  //valőszínűségszámítás
     }
 
-    return {};
+    if (category === "random") return Object.values(categories)[randomBetween(0, Object.values(categories).length - 1, true)]();
+
+    if (category in categories) {
+        console.log(categories[category]);
+        return categories[category]();
+    } else {
+        return test[0];
+    }
 }
 
 // ----------------------------- //

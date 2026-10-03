@@ -122,6 +122,7 @@ class RankedLobby extends Lobby {
             maxPlayer: 2, // max játékosok száma
             rounds: 10, // körök száma
             maxQuestionTime: 15000, // max idő a kérdésre (ms)
+            category: "random",
             gameMode: "ranked"
         }
     }

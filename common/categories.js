@@ -1,10 +1,10 @@
 const categories = {
-    algb: "algebra",
-    geom: "geometria",
-    func: "függvények",
-    sets: "halmazok",
-    komb: "kombinatorika",
-    prob: "valőszínűségszámítás"
+    algb: "🧮 algebra",
+    geom: "📐 geometria",
+    func: "📈 függvények",
+    sets: "⭕ halmazok",
+    komb: "🔢 kombinatorika",
+    prob: "🎲 valőszínűségszámítás"
 };
 
 // Ez a sor a kulcs: a modern JavaScript (Frontend) számára
