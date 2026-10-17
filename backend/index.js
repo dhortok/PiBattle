@@ -225,7 +225,7 @@ io.on('connection', (socket) => {
 
     socket.on("game:answer", ({ lobbyId, answer }) => {
 
-        const lobby = lobbyManager.lobbies.get(lobbyId);
+        const lobby = lobbyManager.getLobbyById(lobbyId);
 
         if (!lobby || ! lobby.game) return;
 
@@ -275,29 +275,33 @@ io.on('connection', (socket) => {
 
     // Keresés indítása a Ranked rendszerben
     socket.on('ranked:join', async () => {
+        console.log("\nVALAKI CSATLAKOZNI SZERETNE RANKEDHOZ!!!!\n");
         // Csak bejelentkezett felhasználók játszhatnak rankedet
         if (!socket.user) {
             return socket.emit("lobby:error", "Be kell jelentkezned a Ranked játékhoz!");
         }
 
+        if (lobbyManager.getLobbyBySocket(socket)) return null;
+
         try {
             const lobby = await lobbyManager.joinRanked(socket, dbManager, io);
 
             if (lobby) {
-                socket.emit("lobby:joined", lobby.id);
+                socket.emit("ranked:joined");
                 setTimeout(() => {
-                    io.to(lobby.id).emit('lobby:update', {
+                    io.to(lobby.id).emit('ranked:update', {
                         players: lobby.getPlayerList(),
-                        host: null, // Ranked esetén nincs host
-                        isRanked: true
+                        rankNum: lobby.rankNum
                     });
                 }, 250);
 
-                if (lobby.players.size === lobby.settings.maxPlayer) {
+                console.log("ELLENFÉL TALÁLVA: " + lobby.opponentFound);
+
+                if (lobby.opponentFound) {
                     io.to(lobby.id).emit("rank:ready");
 
                     setTimeout(() => {
-                        io.to(lobby.id).emit("game:start");
+                        io.to(lobby.id).emit("game:start", lobby.id);
     
                         setTimeout(() => {
                             lobby.startGame(io);

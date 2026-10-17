@@ -307,7 +307,7 @@ class Game {
             const key = this.getPlayerKey(player);
             const isWinner = (key === winnerKey);
             
-            // TESZT
+            // TESZT (ez ennél bonyolultabb lesz)
             const pointChange = isWinner ? 25 : -10; 
 
             queries.push(

@@ -7,6 +7,7 @@ import {rankCalculator} from "../../common/rank";
 
 import Home from "./components/Home";
 import Lobby from "./components/Lobby";
+import Ranked from "./components/Ranked";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { useAuth } from "./context/AuthContext";
@@ -54,6 +55,10 @@ function App() {
         socket.on("lobby:left", () => {
             localStorage.removeItem("lobbyId");
             navigate('/');
+        });
+        
+        socket.on("ranked:joined", () => {
+            navigate(`/ranked`);
         });
 
         return () => {
@@ -140,6 +145,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/lobby/:id" element={<Lobby />} />
+                    <Route path="/ranked" element={<Ranked/>} />
                 </Routes>
             </main>
         </div>

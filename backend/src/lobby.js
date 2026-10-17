@@ -117,6 +117,7 @@ class RankedLobby extends Lobby {
         super(id, dbManager);
         this.type = "ranked";
         this.rankNum = 0;
+        this.opponentFound = false;
         this.settings = {
             ...this.settings,
             maxPlayer: 2, // max játékosok száma
@@ -159,6 +160,10 @@ class LobbyManager {
         if (!lobby.addPlayer(socket, name)) return null;
 
         return lobby;
+    }
+
+    getLobbyById(lobbyId) {
+        return this.lobbies.get(lobbyId) ?? this.ranked.get(lobbyId);
     }
 
     getLobbyBySocket(socket) {
@@ -227,8 +232,9 @@ class LobbyManager {
         let matchFound = null;
         for (const lobby of this.ranked.values()) {
             if (lobby.state === "waiting" && lobby.players.size < lobby.settings.maxPlayer) {
-                if((lobby.rankNum - userRank.rang) < 100) {
+                if(Math.abs(lobby.rankNum - userRank.rang) < 100) {
                     matchFound = lobby;
+                    matchFound.opponentFound = true;
                     break;
                 }
             }
@@ -245,22 +251,6 @@ class LobbyManager {
 
         matchFound.addPlayer(socket, socket.user.username);
         socket.join(matchFound.id);
-
-        /*
-        if (matchFound.players.size === matchFound.settings.maxPlayer) {
-            console.log("Game is starting!");
-            matchFound.state = "starting"; // Ne léphessen be más
-            
-            setTimeout(() => {
-                io.to(matchFound.id).emit("game:start");
-                
-                setTimeout(() => {
-                    matchFound.startGame(io);
-                }, 4000); // 3 másodperc múlva ténylegesen elindul a Game osztály
-                
-            }, 1000);
-        }
-        */
 
         return matchFound;
     }

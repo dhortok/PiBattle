@@ -17,8 +17,6 @@ export default function Lobby() {
     const [players, setPlayers] = useState([]);
     const [host, setHost] = useState(null);
     const [showSettings, setShowSettings] = useState(false); // Popup állapota
-    const [isRanked, setIsRanked] = useState(false); // Ezt a szervernek küldenie kell az update-ben
-    const [isRankReady, setIsRankReady] = useState(false); // Ezt a szervernek küldenie kell az update-ben
     const [gameStarted, setGameStarted] = useState(false);
     const [canStart, setCanStart] = useState(false);
     const [settings, setSettings] = useState({
@@ -28,8 +26,6 @@ export default function Lobby() {
         category: "geom",
         gameMode: "default"
     });
-
-    console.log(lobbyId);
 
     useEffect(() => {
         socket.emit("lobby:join", {
@@ -41,7 +37,6 @@ export default function Lobby() {
             console.log(data);
             setPlayers(data.players);
             setHost(data.host);
-            setIsRanked(data.isRanked || false);
             if (data.canStart) setCanStart(data.canStart);
             if (data.settings) setSettings(data.settings);
         };
@@ -51,14 +46,11 @@ export default function Lobby() {
         // Visszatérés a lobby nézetbe
         const handleGameEnd = () => setGameStarted(false);
 
-        const handleRankReady = () => setIsRankReady(true);
-
         const handleLobbyError = () => navigate("/");
 
         socket.on("lobby:update", handleUpdate);
         socket.on("game:start", handleStart);
         socket.on("lobby:returned", handleGameEnd);
-        socket.on("rank:ready", handleRankReady);
         socket.on("lobby:error", handleLobbyError);
 
         return () => {
@@ -98,9 +90,7 @@ export default function Lobby() {
     return (
         <div className="lobby-container">
             <div className="lobby-header">
-                {!isRanked && (
-                    <h2>Szoba: <span className="lobby-id" onClick={copyLobbyId} title="Másolás">{lobbyId} 📋</span></h2>
-                )}
+                <h2>Szoba: <span className="lobby-id" onClick={copyLobbyId} title="Másolás">{lobbyId} 📋</span></h2>
                 <h2>Játékmenet: <strong className={settings.gameMode === "extrem" ? "extrem" : settings.gameMode === "survival" ? "survival" : ""}>
                     {settings.gameMode === "default" ? "Klasszikus" : settings.gameMode === "extrem" ? "EXTRÉM 🔥" : "Túlélő 💖"}
                 </strong></h2>
@@ -116,8 +106,6 @@ export default function Lobby() {
                 players={players}
                 host={host}
                 maxPlayer={settings.maxPlayer}
-                isRanked={isRanked}
-                isRankReady={isRankReady}
             />
 
             <div className="lobby-actions">
@@ -126,14 +114,10 @@ export default function Lobby() {
                 </button>
                 {isHost && ( 
                     <button className="btn btn-outline" onClick={() => setShowSettings(true)}>Beállítások módosítása</button> 
-                )}                
-                {!isRanked ? (
-                    <button className="btn btn-primary" onClick={() => socket.emit("player:ready", lobbyId)}>
+                )}             
+                <button className="btn btn-primary" onClick={() => socket.emit("player:ready", lobbyId)}>
                     Kész vagyok
-                    </button>
-                ) : (
-                    <h2 style={{ color: "#ffd700" }}>🛡️ Ranked Lobby - Ellenfelek keresése...</h2>
-                )}
+                </button>
                 {isHost && ( 
                     <button 
                         className="btn btn-success" 
